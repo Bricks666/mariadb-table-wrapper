@@ -1,4 +1,5 @@
 const path = require("path");
+const nodeExternals = require("webpack-node-externals");
 
 module.exports = {
 	mode: "production",
@@ -15,15 +16,15 @@ module.exports = {
 		filename: "index.js",
 		clean: true,
 		library: {
-			type: "commonjs-module",
+			type: "umd2",
 		},
-		chunkFormat: "commonjs",
+		chunkFormat: "module",
 	},
 
 	resolve: {
 		extensions: [".ts", ".js"],
 	},
-
+	externals: [nodeExternals()],
 	module: {
 		rules: [
 			{
