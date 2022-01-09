@@ -8,6 +8,7 @@ module.exports = {
 		path: path.resolve(__dirname, "dist"),
 		filename: "index.js",
 		clean: true,
+		globalObject: "this",
 		library: {
 			type: "umd2",
 		},
@@ -16,6 +17,7 @@ module.exports = {
 	resolve: {
 		extensions: [".ts"],
 	},
+	externals: ["mariadb"],
 	module: {
 		rules: [
 			{
