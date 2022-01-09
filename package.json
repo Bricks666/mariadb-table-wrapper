@@ -1,11 +1,11 @@
 {
-	"name": "table-mariadb",
+	"name": "mariadb-table-wrapper",
 	"version": "1.0.1",
 	"description": "wrapper over standard mariadb library",
 	"main": "./dist/index.js",
 	"scripts": {
 		"build": "webpack",
-		"lint": "eslint --ext .ts",
+		"lint": "eslint --ext .ts ./src",
 		"pub": "npm run lint && npm run build && npm version patch && npm publish"
 	},
 	"keywords": [],
