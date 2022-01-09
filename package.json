@@ -1,6 +1,6 @@
 {
 	"name": "mariadb-table-wrapper",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "wrapper over standard mariadb library",
 	"main": "./dist/index.js",
 	"scripts": {
