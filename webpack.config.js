@@ -6,7 +6,10 @@ module.exports = {
 	experiments: {
 		outputModule: true,
 	},
-
+	optimization: {
+		minimize: false,
+	},
+	target: "node",
 	output: {
 		path: path.resolve(__dirname, "dist"),
 		filename: "index.js",
@@ -14,10 +17,11 @@ module.exports = {
 		library: {
 			type: "commonjs-module",
 		},
+		chunkFormat: "commonjs",
 	},
 
 	resolve: {
-		extensions: [".ts"],
+		extensions: [".ts", ".js"],
 	},
 
 	module: {
