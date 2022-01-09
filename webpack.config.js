@@ -19,9 +19,7 @@ module.exports = {
 	resolve: {
 		extensions: [".ts"],
 	},
-	externals: {
-		mariadb: "mariadb",
-	},
+
 	module: {
 		rules: [
 			{
