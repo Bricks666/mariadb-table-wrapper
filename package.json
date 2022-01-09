@@ -2,7 +2,7 @@
 	"name": "mariadb-table-wrapper",
 	"version": "1.0.5",
 	"description": "wrapper over standard mariadb library",
-	"main": "./dist/index.js",
+	"main": "index.js",
 	"scripts": {
 		"build": "webpack",
 		"lint": "eslint --ext .ts ./src",
@@ -26,6 +26,7 @@
 		"webpack-cli": "^4.9.1"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"index.js"
 	]
 }
