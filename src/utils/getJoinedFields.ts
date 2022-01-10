@@ -5,10 +5,8 @@ import { AnyObject, ForeignKeys } from "..";
  * Return all fields referenced by the table records
  */
 export const getJoinedFields = <T extends AnyObject>(
-	tableName: string,
 	foreignKeys: ForeignKeys<T>
 ): string[] => {
-
 	const references = Object.values(foreignKeys);
 
 	const fields: string[] = [];
@@ -26,9 +24,7 @@ export const getJoinedFields = <T extends AnyObject>(
 				fields.push(...addPrefix(refFields, refConfig.table, "."));
 
 				if (refConfig.foreignKeys) {
-					fields.push(
-						...getJoinedFields(refConfig.table, refConfig.foreignKeys)
-					);
+					fields.push(...getJoinedFields(refConfig.foreignKeys));
 				}
 			}
 		}

@@ -118,9 +118,7 @@ export class Table<TF extends AnyObject> {
 
 		if (join && this.config.foreignKeys) {
 			joinSQL = parseJoinTables(this.config.table, this.config.foreignKeys);
-			tableFields.push(
-				...getJoinedFields(this.config.table, this.config.foreignKeys)
-			);
+			tableFields.push(...getJoinedFields(this.config.foreignKeys));
 		}
 
 		if (excludes && !isEmpty(excludes)) {
