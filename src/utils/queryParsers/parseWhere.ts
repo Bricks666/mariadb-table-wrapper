@@ -6,7 +6,6 @@ export const parseWhere = <T extends AnyObject>(
 	filters: TableFilters<T>,
 	tableName?: string
 ): SQL => {
-	debugger;
 	const keys = Object.keys(filters);
 	const values = Object.values(filters);
 

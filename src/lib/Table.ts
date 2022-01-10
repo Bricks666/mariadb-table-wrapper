@@ -5,7 +5,6 @@ import {
 	TableFilters,
 	AnyObject,
 	TableSelectRequestConfig,
-	ExcludeFields,
 } from "../types";
 import {
 	accumulateConfigs,
@@ -24,6 +23,7 @@ import {
 	parseJoinTables,
 	parseWhere,
 } from "../utils";
+import { parseOrdering, parseValues } from "../utils/queryParsers";
 import { ParamsError } from "./Error";
 
 export class Table<TF extends AnyObject> {
@@ -44,13 +44,14 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(intiSQL);
 	}
 
-	/* TODO: Добавить возможность множественного добавления */
-	public async insert<Request extends Partial<TF>>(params: Request) {
-		const fields: SQL = parseSQLKeys(params);
-		const values: SQL = parseSQLValues(params);
+	public async insert<Request extends Partial<TF> = Partial<TF>>(
+		params: Request | Request[]
+	) {
+		const fields: SQL = parseSQLKeys(isArray(params) ? params[0] : params);
+		const values: SQL = parseValues(params);
 
 		await this.connection?.query(
-			`INSERT ${this.config.table}(${fields}) VALUES(${values});`
+			`INSERT ${this.config.table}(${fields}) ${values};`
 		);
 	}
 
@@ -61,9 +62,11 @@ export class Table<TF extends AnyObject> {
 			join,
 			excludes,
 			includes,
+			ordering,
 			page = { page: 1, countOnPage: 100 },
 		} = config;
 
+		/* TODO: Сделать рефактор, шаблонизировать валидацию */
 		if (excludes && includes) {
 			throw new ParamsError(
 				"select",
@@ -96,9 +99,18 @@ export class Table<TF extends AnyObject> {
 			);
 		}
 
+		if (ordering && !isObject(ordering)) {
+			throw new ParamsError(
+				"select",
+				["ordering"],
+				"if is transmitted must be an object"
+			);
+		}
+
 		let select: SQL = "*";
 		let where: SQL = "";
 		let joinSQL: SQL = "";
+		let orderBy: SQL = "";
 		const tableFields: string[] = addPrefix(
 			Object.keys(this.config.fields),
 			this.config.table,
@@ -124,12 +136,16 @@ export class Table<TF extends AnyObject> {
 			where = parseWhere(filters, this.config.table);
 		}
 
+		if (ordering && !isEmpty(ordering)) {
+			orderBy = parseOrdering(ordering);
+		}
+
 		const limit = parseLimit(page);
 
 		const response = await this.connection?.query(
 			`SELECT ${select || "*"} FROM ${
 				this.config.table
-			} ${joinSQL} ${where} ${limit};`
+			} ${joinSQL} ${where} ${orderBy} ${limit};`
 		);
 
 		return Array.from<Response>(response);

@@ -41,31 +41,38 @@ export interface TablePage {
 	readonly page: number;
 	readonly countOnPage: number;
 }
-export interface Expression<T extends AnyObject> {
-	field: keyof T;
-	operator: Operators;
-	value: string | number | boolean;
+export interface Expression<TF extends AnyObject> {
+	readonly field: keyof TF;
+	readonly operator: Operators;
+	readonly value: string | number | boolean;
 }
 
-export type TableFilters<T extends AnyObject> = {
-	readonly [key in keyof T]?:
-		| T[key]
-		| T[key][]
-		| Expression<T>
-		| Expression<T>[];
+export type TableFilters<TF extends AnyObject> = {
+	readonly [key in keyof TF]?:
+		| TF[key]
+		| TF[key][]
+		| Expression<TF>
+		| Expression<TF>[];
 };
 
-export type AssociateField<T extends AnyObject> = [keyof T, string];
+export type OrderingDirection = "DESC" | "ASC";
 
-export type ExcludeFields<T extends AnyObject> = Array<keyof T>;
-export type IncludeFields<T extends AnyObject> = Array<
-	AssociateField<T> | keyof T
+export type Ordering<TF extends AnyObject> = {
+	readonly [key in keyof TF]?: OrderingDirection;
+};
+
+export type AssociateField<TF extends AnyObject> = [keyof TF, string];
+
+export type ExcludeFields<TF extends AnyObject> = Array<keyof TF>;
+export type IncludeFields<TF extends AnyObject> = Array<
+	AssociateField<TF> | keyof TF
 >;
 
-export interface TableSelectRequestConfig<T extends AnyObject> {
-	readonly filters?: TableFilters<T>;
+export interface TableSelectRequestConfig<TF extends AnyObject> {
+	readonly filters?: TableFilters<TF>;
 	readonly join?: boolean;
 	readonly page?: TablePage;
-	readonly excludes?: ExcludeFields<T>;
-	readonly includes?: IncludeFields<T>;
+	readonly excludes?: ExcludeFields<TF>;
+	readonly includes?: IncludeFields<TF>;
+	readonly ordering?: Ordering<TF>;
 }

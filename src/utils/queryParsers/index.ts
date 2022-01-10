@@ -7,3 +7,5 @@ export { parseSetParams } from "./parseSetParams";
 export { parseWhere } from "./parseWhere";
 export { parseAs } from "./parserAs";
 export { parseLimit } from "./parseLimit";
+export { parseValues } from "./parseValues";
+export { parseOrdering } from "./parseOrdering";
