@@ -17,7 +17,7 @@ module.exports = {
 		filename: "index.js",
 		clean: true,
 		library: {
-			type: "module",
+			type: "commonjs-module",
 		},
 		chunkFormat: "module",
 	},
