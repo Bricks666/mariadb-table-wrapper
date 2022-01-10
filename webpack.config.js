@@ -12,10 +12,10 @@ module.exports = {
 	},
 	devtool: false,
 	target: "node",
-	globalObject: "this",
 	output: {
-		path: path.resolve(__dirname, "dist"),
+    path: path.resolve(__dirname, "dist"),
 		filename: "index.js",
+    globalObject: "this",
 		clean: true,
 		library: {
 			type: "umd2",
