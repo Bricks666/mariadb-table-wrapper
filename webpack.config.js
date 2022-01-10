@@ -19,6 +19,7 @@ module.exports = {
 		library: {
 			type: "umd2",
 		},
+		chunkFormat: "module",
 	},
 
 	resolve: {
