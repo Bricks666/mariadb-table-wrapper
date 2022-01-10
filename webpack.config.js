@@ -12,12 +12,13 @@ module.exports = {
 	},
 	devtool: false,
 	target: "node",
+	globalObject: "this",
 	output: {
 		path: path.resolve(__dirname, "dist"),
 		filename: "index.js",
 		clean: true,
 		library: {
-			type: "commonjs-module",
+			type: "umd2",
 		},
 		chunkFormat: "module",
 	},
