@@ -16,7 +16,6 @@ import {
 	parseCreateTable,
 	parseLimit,
 	parseSQLKeys,
-	parseSQLValues,
 	parseSetParams,
 	parseExcludes,
 	parseIncludes,
