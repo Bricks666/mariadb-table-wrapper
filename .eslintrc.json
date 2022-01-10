@@ -31,5 +31,5 @@
 		/* TYPESCRIPT */
 		"@typescript-eslint/no-explicit-any": "error"
 	},
-	"ignorePatterns": ["*.config.*", "*.js"]
+	"ignorePatterns": ["*.config.*", "*.js", "*.mjs"]
 }

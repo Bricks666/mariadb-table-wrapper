@@ -1,5 +1,5 @@
 import { parseFieldType } from ".";
-import { FieldConfig, SQL } from "../types";
+import { FieldConfig, SQL } from "../../types";
 
 export const parseField = ([fieldName, fieldConfig]: [
 	string,

@@ -5,4 +5,3 @@ export type MappedObject<T> = {
 export type AnyObject = MappedObject<any>;
 
 export type SQL = string;
-export type RequestValues = number | string | Array<number | string>;

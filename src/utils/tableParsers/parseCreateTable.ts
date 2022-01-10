@@ -1,11 +1,12 @@
-import { parseField, parseForeignKey, parsePrimaryKeys, toString } from ".";
+import { parseField, parseForeignKey, parsePrimaryKeys } from ".";
 import {
 	FieldConfig,
 	MappedObject,
 	Reference,
 	SQL,
 	TableConfig,
-} from "../types";
+} from "../../types";
+import { toString } from "..";
 
 export const parseCreateTable = <TF extends MappedObject<string>>(
 	config: TableConfig<TF>
@@ -25,9 +26,10 @@ export const parseCreateTable = <TF extends MappedObject<string>>(
 	}
 
 	const primaryKey = parsePrimaryKeys(config.fields);
+
 	const SQLScript: SQL = `CREATE TABLE ${
 		config.safeCreating ? "IF NOT EXISTS" : ""
-	} ${config.table}(${fields},${primaryKey}${
+	} ${config.table}(${fields}${primaryKey && "," + primaryKey}${
 		foreignKeys !== "" ? "," + foreignKeys : ""
 	});`;
 

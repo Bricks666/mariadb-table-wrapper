@@ -10,6 +10,7 @@ module.exports = {
 	optimization: {
 		minimize: false,
 	},
+	devtool: false,
 	target: "node",
 	output: {
 		path: path.resolve(__dirname, "dist"),

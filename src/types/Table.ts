@@ -7,11 +7,7 @@ export enum SQLTypes {
 	BOOLEAN = "BOOL",
 }
 
-export enum JoinOperators {
-	LESS_THAN = "<",
-	EQUAL = "=",
-	MORE_THAN = ">",
-}
+export type Operators = "=" | "<" | "<=" | ">" | ">=" | "!=";
 
 export interface FieldConfig {
 	readonly type: SQLTypes;
@@ -32,7 +28,7 @@ export interface Reference {
 }
 
 export type ForeignKeys<TF extends AnyObject> = {
-	readonly [key in keyof TF]?: Reference | never;
+	readonly [key in keyof TF]?: Reference;
 };
 
 export interface TableConfig<TF extends AnyObject> {
@@ -45,26 +41,31 @@ export interface TablePage {
 	readonly page: number;
 	readonly countOnPage: number;
 }
-
-export interface TableJoin {
-	readonly outerTable: string;
-	readonly innerTable: string;
-	readonly expressions: JoinExpression[];
-}
-export interface JoinExpression {
-	readonly innerField: `${string}Id`;
-	readonly operator: JoinOperators;
-	readonly outerField: `${string}Id`;
+export interface Expression<T extends AnyObject> {
+	field: keyof T;
+	operator: Operators;
+	value: string | number | boolean;
 }
 
 export type TableFilter<T extends AnyObject> = {
-	readonly [key in keyof T]?: T[key] | T[key][];
+	readonly [key in keyof T]?:
+		| T[key]
+		| T[key][]
+		| Expression<T>
+		| Expression<T>[];
 };
+
+export type AssociateField<T extends AnyObject> = [keyof T, string];
+
+export type ExcludeFields<T extends AnyObject> = Array<keyof T>;
+export type IncludeFields<T extends AnyObject> = Array<
+	AssociateField<T> | keyof T
+>;
 
 export interface TableSelectRequestConfig<T extends AnyObject> {
 	readonly filters?: TableFilter<T>;
-	readonly join?: TableJoin[];
+	readonly join?: boolean;
 	readonly page?: TablePage;
-	readonly includes?: (keyof T)[];
-	readonly excludes?: (keyof T)[];
+	readonly excludes?: ExcludeFields<T>;
+	readonly includes?: IncludeFields<T>;
 }

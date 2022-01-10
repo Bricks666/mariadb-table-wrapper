@@ -1,4 +1,4 @@
-import { Reference, SQL } from "../types";
+import { Reference, SQL } from "../../types";
 
 export const parseForeignKey = ([fieldName, reference]: [
 	string,

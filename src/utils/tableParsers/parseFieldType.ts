@@ -1,4 +1,4 @@
-import { FieldConfig, SQLTypes } from "../types";
+import { FieldConfig, SQLTypes } from "../../types";
 
 export const parseFieldType = (fieldConfig: FieldConfig): string => {
 	switch (fieldConfig.type) {
