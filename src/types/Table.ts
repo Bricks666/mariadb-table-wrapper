@@ -47,7 +47,7 @@ export interface Expression<T extends AnyObject> {
 	value: string | number | boolean;
 }
 
-export type TableFilter<T extends AnyObject> = {
+export type TableFilters<T extends AnyObject> = {
 	readonly [key in keyof T]?:
 		| T[key]
 		| T[key][]
@@ -63,7 +63,7 @@ export type IncludeFields<T extends AnyObject> = Array<
 >;
 
 export interface TableSelectRequestConfig<T extends AnyObject> {
-	readonly filters?: TableFilter<T>;
+	readonly filters?: TableFilters<T>;
 	readonly join?: boolean;
 	readonly page?: TablePage;
 	readonly excludes?: ExcludeFields<T>;

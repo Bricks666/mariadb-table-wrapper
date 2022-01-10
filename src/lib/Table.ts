@@ -2,7 +2,7 @@ import { PoolConnection } from "mariadb";
 import {
 	TableConfig,
 	SQL,
-	TableFilter,
+	TableFilters,
 	AnyObject,
 	TableSelectRequestConfig,
 	ExcludeFields,
@@ -135,10 +135,17 @@ export class Table<TF extends AnyObject> {
 		return Array.from<Response>(response);
 	}
 
-	public async delete(filters: TableFilter<TF>) {
+	public async selectOne<Response>(
+		config: TableSelectRequestConfig<TF> = {}
+	): Promise<Response | undefined> {
+		return (await this.select<Response>(config))[0];
+	}
+
+	public async delete(filters: TableFilters<TF>) {
 		if (isEmpty(filters)) {
-			throw new Error("filters must have any property");
+			throw new ParamsError("select", ["filters"], "filters must not be empty");
 		}
+
 		const where: SQL = parseWhere(filters);
 
 		await this.connection?.query(`DELETE FROM ${this.config.table} ${where};`);
@@ -146,10 +153,18 @@ export class Table<TF extends AnyObject> {
 
 	public async update<Values extends AnyObject>(
 		newValues: Values,
-		filters: TableFilter<TF>
+		filters: TableFilters<TF>
 	) {
-		if (isEmpty(newValues) || isEmpty(filters)) {
-			throw new Error("newValues and Filter must have any property");
+		if (isEmpty(filters)) {
+			throw new ParamsError("select", ["filters"], "filters must not be empty");
+		}
+
+		if (isEmpty(newValues)) {
+			throw new ParamsError(
+				"select",
+				["newValues"],
+				"newValues must not be empty"
+			);
 		}
 
 		const update: SQL = parseSetParams(newValues);
@@ -158,5 +173,17 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(
 			`UPDATE ${this.config.table} SET ${update} ${where};`
 		);
+	}
+
+	public async truncate() {
+		await this.connection?.query(`TRUNCATE TABLE ${this.config.table};`);
+	}
+
+	public async drop() {
+		await this.connection?.query(`DROP TABLE ${this.config.table};`);
+	}
+
+	public async deleteAll() {
+		await this.connection?.query(`DELETE FROM ${this.config.table};`);
 	}
 }
