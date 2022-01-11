@@ -1,5 +1,5 @@
 import { parseSQLValues } from ".";
-import { addPrefix, isArray, toString } from "..";
+import { addPrefix, isArray, toJSON, toString } from "..";
 import { AnyObject, SQL, TableFilters } from "../../types";
 
 export const parseWhere = <T extends AnyObject>(
@@ -16,7 +16,7 @@ export const parseWhere = <T extends AnyObject>(
 		if (isArray(values[i])) {
 			filter += `IN (${parseSQLValues(values[i])})`;
 		} else {
-			filter += `= ${values[i]}`;
+			filter += `= ${toJSON(values[i])}`;
 		}
 
 		return filter;
