@@ -1,10 +1,8 @@
-import { isArray, parseSQLValues, toString } from "..";
+import { parseSQLValues, toString } from "..";
 import { AnyObject, SQL } from "../..";
 
-export const parseValues = <T extends AnyObject>(values: T | T[]): SQL => {
-	const SQLValues: T[] = isArray(values) ? values : [values];
-
-	const parsedValues: SQL[] = SQLValues.map(
+export const parseValues = <T extends AnyObject>(values: T[]): SQL => {
+	const parsedValues: SQL[] = values.map(
 		(value) => `(${parseSQLValues(value)})`
 	);
 

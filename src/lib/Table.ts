@@ -49,7 +49,10 @@ export class Table<TF extends AnyObject> {
 		params: Request | Request[]
 	) {
 		const fields: SQL = parseSQLKeys(isArray(params) ? params[0] : params);
-		const values: SQL = parseValues(params);
+		/* TODO: Сделать рефактор с undefined to null */
+		const values: SQL = parseValues(
+			isArray(params) ? undefinedToNull(params) : undefinedToNull([params])
+		);
 
 		await this.connection?.query(
 			`INSERT ${this.config.table}(${fields}) ${values};`
