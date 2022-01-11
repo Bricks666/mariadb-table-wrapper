@@ -16,7 +16,7 @@ export const parseWhere = <T extends AnyObject>(
 		if (isArray(values[i])) {
 			filter += `IN (${parseSQLValues(values[i])})`;
 		} else {
-			filter += `= '${values[i]}'`;
+			filter += `= '${values[i] || null}'`;
 		}
 
 		return filter;
