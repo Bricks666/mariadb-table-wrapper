@@ -1,5 +1,5 @@
 import { parseSQLValues } from ".";
-import { addPrefix, isArray, toJSON, toString } from "..";
+import { addPrefix, isArray, toString } from "..";
 import { AnyObject, SQL, TableFilters } from "../../types";
 
 export const parseWhere = <T extends AnyObject>(
