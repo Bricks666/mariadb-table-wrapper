@@ -51,7 +51,7 @@ export class Table<TF extends AnyObject> {
 		const fields: SQL = parseSQLKeys(isArray(params) ? params[0] : params);
 		/* TODO: Сделать рефактор с undefined to null */
 		const values: SQL = parseValues(
-			isArray(params) ? undefinedToNull(params) : undefinedToNull([params])
+			isArray(params) ? params.map(undefinedToNull) : [undefinedToNull(params)]
 		);
 
 		await this.connection?.query(
@@ -128,18 +128,11 @@ export class Table<TF extends AnyObject> {
 		}
 
 		if (excludes && !isEmpty(excludes)) {
-			select = parseExcludes(
-				this.config.table,
-				tableFields,
-				undefinedToNull<typeof excludes>(excludes)
-			);
+			select = parseExcludes(this.config.table, tableFields, excludes);
 		}
 
 		if (includes && !isEmpty(includes)) {
-			select = parseIncludes(
-				this.config.table,
-				undefinedToNull<typeof includes>(includes)
-			);
+			select = parseIncludes(this.config.table, includes);
 		}
 
 		if (filters && !isEmpty(filters)) {
@@ -150,7 +143,7 @@ export class Table<TF extends AnyObject> {
 		}
 
 		if (ordering && !isEmpty(ordering)) {
-			orderBy = parseOrdering(ordering);
+			orderBy = parseOrdering(undefinedToNull<typeof ordering>(ordering));
 		}
 
 		const limit = parseLimit(page);

@@ -48,11 +48,7 @@ export interface Expression<TF extends AnyObject> {
 }
 
 export type TableFilters<TF extends AnyObject> = {
-	readonly [key in keyof TF]?:
-		| TF[key]
-		| TF[key][]
-		| Expression<TF>
-		| Expression<TF>[];
+	readonly [key in keyof TF]?: TF[key] | TF[key][];
 };
 
 export type OrderingDirection = "DESC" | "ASC";
