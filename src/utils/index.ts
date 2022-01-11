@@ -20,3 +20,4 @@ export { receiveConfigs } from "./receiveConfigs";
 export { parseCreateTable } from "./tableParsers";
 export { toJSON } from "./toJSON";
 export { toString } from "./toString";
+export { undefinedToNull } from "./undefinedToNull";

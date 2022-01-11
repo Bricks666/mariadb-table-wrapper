@@ -21,6 +21,7 @@ import {
 	parseIncludes,
 	parseJoinTables,
 	parseWhere,
+	undefinedToNull,
 } from "../utils";
 import { parseOrdering, parseValues } from "../utils/queryParsers";
 import { ParamsError } from "./Error";
@@ -30,6 +31,7 @@ export class Table<TF extends AnyObject> {
 	private readonly config: TableConfig<TF>;
 
 	public constructor(config: TableConfig<TF>) {
+		/* TODO: Разбить конфиг на несколько частей таблицы */
 		this.config = config;
 		this.connection = null;
 		accumulateConfigs(config);
@@ -118,19 +120,30 @@ export class Table<TF extends AnyObject> {
 
 		if (join && this.config.foreignKeys) {
 			joinSQL = parseJoinTables(this.config.table, this.config.foreignKeys);
+			/* TODO: перенести парсинг полей в конструктор и держать, как отдельное свойство */
 			tableFields.push(...getJoinedFields(this.config.foreignKeys));
 		}
 
 		if (excludes && !isEmpty(excludes)) {
-			select = parseExcludes(this.config.table, tableFields, excludes);
+			select = parseExcludes(
+				this.config.table,
+				tableFields,
+				undefinedToNull<typeof excludes>(excludes)
+			);
 		}
 
 		if (includes && !isEmpty(includes)) {
-			select = parseIncludes(this.config.table, includes);
+			select = parseIncludes(
+				this.config.table,
+				undefinedToNull<typeof includes>(includes)
+			);
 		}
 
 		if (filters && !isEmpty(filters)) {
-			where = parseWhere(filters, this.config.table);
+			where = parseWhere(
+				undefinedToNull<typeof filters>(filters),
+				this.config.table
+			);
 		}
 
 		if (ordering && !isEmpty(ordering)) {
