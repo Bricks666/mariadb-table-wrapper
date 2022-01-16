@@ -1,7 +1,7 @@
-export const addPrefix = <T extends string>(
-	array: T[],
+export const addPrefix = (
+	value: string,
 	prefix: string,
 	separator: string
-): string[] => {
-	return array.map((value) => `${prefix}${separator}${value}`);
+): string => {
+	return `${prefix}${separator}${value}`;
 };

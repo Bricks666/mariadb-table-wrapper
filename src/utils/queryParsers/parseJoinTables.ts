@@ -16,11 +16,13 @@ const parseJoinTable = (
 
 export const parseJoinTables = <T extends AnyObject>(
 	tableName: string,
-	foreignKeys: ForeignKeys<T>
+	foreignKeys: ForeignKeys<T>,
+	joinedTable?: string[]
 ): string => {
-	const SQLcommands: SQL[] = Object.entries(foreignKeys).map((pair) =>
-		parseJoinTable(tableName, pair)
-	);
+	const SQLcommands: SQL[] = Object.entries(foreignKeys)
+		.filter(([tableName]) => !joinedTable || joinedTable.includes(tableName))
+		.map((pair) => parseJoinTable(tableName, pair));
+
 	Object.values(foreignKeys).forEach((reference) => {
 		if (reference) {
 			const referenceConfig = receiveConfigs(reference.tableName);

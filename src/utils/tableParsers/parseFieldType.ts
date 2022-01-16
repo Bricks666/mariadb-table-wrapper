@@ -1,3 +1,4 @@
+import { isEmpty, toJSON, toString } from "..";
 import { FieldConfig, SQLTypes } from "../../types";
 
 export const parseFieldType = (fieldConfig: FieldConfig): string => {
@@ -25,6 +26,15 @@ export const parseFieldType = (fieldConfig: FieldConfig): string => {
 		}
 		case SQLTypes.BOOLEAN: {
 			return SQLTypes.BOOLEAN;
+		}
+		case SQLTypes.ENUM: {
+			if (
+				typeof fieldConfig.enumValues === "undefined" ||
+				isEmpty(fieldConfig.enumValues)
+			) {
+				throw new Error("Enum values must be provided");
+			}
+			return `ENUM(${toString(toJSON(fieldConfig.enumValues), ",")})`;
 		}
 	}
 };

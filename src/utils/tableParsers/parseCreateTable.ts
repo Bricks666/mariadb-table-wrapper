@@ -1,36 +1,40 @@
 import { parseField, parseForeignKey, parsePrimaryKeys } from ".";
 import {
 	FieldConfig,
+	Fields,
+	ForeignKeys,
 	MappedObject,
 	Reference,
 	SQL,
-	TableConfig,
 } from "../../types";
 import { toString } from "..";
 
 export const parseCreateTable = <TF extends MappedObject<string>>(
-	config: TableConfig<TF>
+	tableName: string,
+	fields: Fields<TF>,
+	safeCreating: boolean,
+	foreignKeys?: ForeignKeys<TF>
 ): SQL => {
-	const fieldPairs = Object.entries<FieldConfig>(config.fields);
-	const fields: SQL = toString(fieldPairs.map(parseField));
+	const fieldPairs = Object.entries<FieldConfig>(fields);
+	const parsedFields: SQL = toString(fieldPairs.map(parseField));
 
-	let foreignKeys: SQL = "";
-	if (typeof config.foreignKeys !== "undefined") {
-		foreignKeys = toString(
-			Object.entries(config.foreignKeys)
-				.filter(
+	let parsedForeignKeys: SQL = "";
+	if (typeof foreignKeys !== "undefined") {
+		parsedForeignKeys = toString(
+			Object.entries(foreignKeys)
+				.filter<[string, Reference]>(
 					(pair): pair is [string, Reference] => typeof pair[1] !== "undefined"
 				)
 				.map(parseForeignKey)
 		);
 	}
 
-	const primaryKey = parsePrimaryKeys(config.fields);
+	const primaryKey = parsePrimaryKeys(fields);
 
 	const SQLScript: SQL = `CREATE TABLE ${
-		config.safeCreating ? "IF NOT EXISTS" : ""
-	} ${config.table}(${fields}${primaryKey && "," + primaryKey}${
-		foreignKeys !== "" ? "," + foreignKeys : ""
+		safeCreating ? "IF NOT EXISTS" : ""
+	} ${tableName}(${parsedFields}${primaryKey && "," + primaryKey}${
+		parsedForeignKeys !== "" ? "," + parsedForeignKeys : ""
 	});`;
 
 	return SQLScript;

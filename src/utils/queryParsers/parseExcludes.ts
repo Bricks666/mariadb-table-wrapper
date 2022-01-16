@@ -1,4 +1,4 @@
-import { addPrefix, toString } from "..";
+import { addPrefix, isArray, toString } from "..";
 import { AnyObject, ExcludeFields, SQL } from "../../types";
 
 export const parseExcludes = <T extends AnyObject>(
@@ -6,9 +6,24 @@ export const parseExcludes = <T extends AnyObject>(
 	tableFields: string[],
 	excludes: ExcludeFields<T>
 ): SQL => {
-	const excludesWithPrefix = addPrefix(excludes as string[], tableName, ".");
-	const goodFields = Object.values(tableFields).filter(
-		(filed) => !excludesWithPrefix.includes(filed)
-	);
-	return toString(goodFields, ", ");
+	const fields: string[] = [];
+	if (isArray<string[]>(excludes)) {
+		const excludesWithPrefix = excludes.map((exclude) =>
+			addPrefix(exclude, tableName, ".")
+		);
+
+		const goodFields = Object.values(tableFields).filter(
+			(filed) => !excludesWithPrefix.includes(filed)
+		);
+
+		fields.push(...goodFields);
+	} else {
+		const tableAndFields = Object.entries(excludes);
+
+		tableAndFields.forEach(([table, excludeFields]) => {
+			fields.push(parseExcludes(table, tableFields, excludeFields));
+		});
+	}
+
+	return toString(fields, ", ");
 };

@@ -1,10 +1,12 @@
-import { PoolConnection } from "mariadb";
+import { Connection } from "mariadb";
 import {
 	TableConfig,
 	SQL,
 	TableFilters,
 	AnyObject,
 	TableSelectRequestConfig,
+	Fields,
+	ForeignKeys,
 } from "../types";
 import {
 	accumulateConfigs,
@@ -12,7 +14,6 @@ import {
 	getJoinedFields,
 	isArray,
 	isEmpty,
-	isObject,
 	parseCreateTable,
 	parseLimit,
 	parseSQLKeys,
@@ -27,20 +28,32 @@ import { parseOrdering, parseValues } from "../utils/queryParsers";
 import { ParamsError } from "./Error";
 
 export class Table<TF extends AnyObject> {
-	private connection: PoolConnection | null;
-	private readonly config: TableConfig<TF>;
+	private connection: Connection | null;
+	private readonly name: string;
+	private readonly fields: Fields<TF>;
+	private readonly foreignKeys: ForeignKeys<TF> | undefined;
+	private readonly safeCreation: boolean;
 
 	public constructor(config: TableConfig<TF>) {
-		/* TODO: Разбить конфиг на несколько частей таблицы */
-		this.config = config;
+		this.name = config.table;
+		this.fields = config.fields;
+		this.foreignKeys = config.foreignKeys;
+		this.safeCreation = !!config.safeCreating;
+
 		this.connection = null;
+
 		accumulateConfigs(config);
 	}
 
-	public async init(connection: PoolConnection) {
+	public async init(connection: Connection) {
 		this.connection = connection;
 
-		const intiSQL: SQL = parseCreateTable(this.config);
+		const intiSQL: SQL = parseCreateTable(
+			this.name,
+			this.fields,
+			this.safeCreation,
+			this.foreignKeys
+		);
 
 		await this.connection?.query(intiSQL);
 	}
@@ -49,108 +62,64 @@ export class Table<TF extends AnyObject> {
 		params: Request | Request[]
 	) {
 		const fields: SQL = parseSQLKeys(isArray(params) ? params[0] : params);
-		/* TODO: Сделать рефактор с undefined to null */
-		const values: SQL = parseValues(
-			isArray(params) ? params.map(undefinedToNull) : [undefinedToNull(params)]
-		);
 
-		await this.connection?.query(
-			`INSERT ${this.config.table}(${fields}) ${values};`
-		);
+		const paramsArray = isArray(params) ? params : [params];
+		const values: SQL = parseValues(paramsArray.map(undefinedToNull));
+
+		await this.connection?.query(`INSERT ${this.name}(${fields}) ${values};`);
 	}
 
-	// eslint-disable-next-line sonarjs/cognitive-complexity
-	public async select<Response>(config: TableSelectRequestConfig<TF> = {}) {
+	public async select<Response = TF>(
+		config: TableSelectRequestConfig<TF> = {}
+	) {
 		const {
 			filters,
 			join,
 			excludes,
 			includes,
 			ordering,
+			joinedTable,
 			page = { page: 1, countOnPage: 100 },
 		} = config;
-
-		/* TODO: Сделать рефактор, шаблонизировать валидацию */
-		if (excludes && includes) {
-			throw new ParamsError(
-				"select",
-				["excludes", "includes"],
-				"were transmitted together"
-			);
-		}
-
-		if (excludes && !isArray(excludes)) {
-			throw new ParamsError(
-				"select",
-				["excludes"],
-				"when is transmitted must be an array"
-			);
-		}
-
-		if (includes && !isArray(includes)) {
-			throw new ParamsError(
-				"select",
-				["includes"],
-				"when is transmitted must be an array"
-			);
-		}
-
-		if (filters && !isObject(filters)) {
-			throw new ParamsError(
-				"select",
-				["filters"],
-				"if is transmitted must be an object"
-			);
-		}
-
-		if (ordering && !isObject(ordering)) {
-			throw new ParamsError(
-				"select",
-				["ordering"],
-				"if is transmitted must be an object"
-			);
-		}
+		/* TODO:  Добавить проверки входных параметров */
 
 		let select: SQL = "*";
 		let where: SQL = "";
 		let joinSQL: SQL = "";
 		let orderBy: SQL = "";
-		const tableFields: string[] = addPrefix(
-			Object.keys(this.config.fields),
-			this.config.table,
-			"."
+		const tableFields: string[] = Object.keys(this.fields).map((field) =>
+			addPrefix(field, this.name, ".")
 		);
 
-		if (join && this.config.foreignKeys) {
-			joinSQL = parseJoinTables(this.config.table, this.config.foreignKeys);
+		if (join && this.foreignKeys) {
+			joinSQL = parseJoinTables(this.name, this.foreignKeys);
 			/* TODO: перенести парсинг полей в конструктор и держать, как отдельное свойство */
-			tableFields.push(...getJoinedFields(this.config.foreignKeys));
+			tableFields.push(...getJoinedFields(this.foreignKeys, joinedTable));
 		}
 
 		if (excludes && !isEmpty(excludes)) {
-			select = parseExcludes(this.config.table, tableFields, excludes);
+			select = parseExcludes(this.name, tableFields, excludes);
 		}
 
 		if (includes && !isEmpty(includes)) {
-			select = parseIncludes(this.config.table, includes);
+			select = parseIncludes(this.name, includes);
 		}
 
 		if (filters && !isEmpty(filters)) {
-			where = parseWhere(
-				undefinedToNull<typeof filters>(filters),
-				this.config.table
-			);
+			const filtersWithNull = undefinedToNull<typeof filters>(filters);
+			where = parseWhere(filtersWithNull, this.name);
 		}
 
 		if (ordering && !isEmpty(ordering)) {
-			orderBy = parseOrdering(undefinedToNull<typeof ordering>(ordering));
+			const orderingWithNull = undefinedToNull<typeof ordering>(ordering);
+			orderBy = parseOrdering(orderingWithNull);
 		}
 
 		const limit = parseLimit(page);
 
 		const response = await this.connection?.query(
 			`SELECT ${select || "*"} FROM ${
-				this.config.table
+				this.name
 			} ${joinSQL} ${where} ${orderBy} ${limit};`
 		);
 
@@ -170,7 +139,7 @@ export class Table<TF extends AnyObject> {
 
 		const where: SQL = parseWhere(filters);
 
-		await this.connection?.query(`DELETE FROM ${this.config.table} ${where};`);
+		await this.connection?.query(`DELETE FROM ${this.name} ${where};`);
 	}
 
 	public async update<Values extends AnyObject>(
@@ -192,20 +161,18 @@ export class Table<TF extends AnyObject> {
 		const update: SQL = parseSetParams(newValues);
 		const where: SQL = parseWhere(filters);
 
-		await this.connection?.query(
-			`UPDATE ${this.config.table} SET ${update} ${where};`
-		);
+		await this.connection?.query(`UPDATE ${this.name} SET ${update} ${where};`);
 	}
 
 	public async truncate() {
-		await this.connection?.query(`TRUNCATE TABLE ${this.config.table};`);
+		await this.connection?.query(`TRUNCATE TABLE ${this.name};`);
 	}
 
 	public async drop() {
-		await this.connection?.query(`DROP TABLE ${this.config.table};`);
+		await this.connection?.query(`DROP TABLE ${this.name};`);
 	}
 
 	public async deleteAll() {
-		await this.connection?.query(`DELETE FROM ${this.config.table};`);
+		await this.connection?.query(`DELETE FROM ${this.name};`);
 	}
 }

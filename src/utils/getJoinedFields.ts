@@ -1,13 +1,19 @@
-import { addPrefix, receiveConfigs } from ".";
-import { AnyObject, ForeignKeys } from "..";
+import { addPrefix, isEmpty, receiveConfigs } from ".";
+import { AnyObject, ForeignKeys, Reference } from "..";
 
 /*
  * Return all fields referenced by the table records
  */
 export const getJoinedFields = <T extends AnyObject>(
-	foreignKeys: ForeignKeys<T>
+	foreignKeys: ForeignKeys<T>,
+	joinedTable?: string[]
 ): string[] => {
-	const references = Object.values(foreignKeys);
+	let references = Object.values(foreignKeys);
+	if (joinedTable && !isEmpty(joinedTable)) {
+		references = references
+			.filter<Reference>((ref): ref is Reference => ref !== undefined)
+			.filter((ref) => joinedTable.includes(ref.tableName));
+	}
 
 	const fields: string[] = [];
 
@@ -21,7 +27,9 @@ export const getJoinedFields = <T extends AnyObject>(
 					(fieldName) => fieldName !== reference.field
 				);
 
-				fields.push(...addPrefix(refFields, refConfig.table, "."));
+				fields.push(
+					...refFields.map((field) => addPrefix(field, refConfig.table, "."))
+				);
 
 				if (refConfig.foreignKeys) {
 					fields.push(...getJoinedFields(refConfig.foreignKeys));

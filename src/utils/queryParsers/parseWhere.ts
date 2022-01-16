@@ -10,7 +10,7 @@ export const parseWhere = <T extends AnyObject>(
 	const values = Object.values(filters);
 
 	const filtersArray: SQL[] = keys.map((key, i) => {
-		const validKey = tableName ? addPrefix([key], tableName, ".") : key;
+		const validKey = tableName ? addPrefix(key, tableName, ".") : key;
 		let filter: SQL = `${validKey} `;
 
 		if (isArray(values[i])) {
