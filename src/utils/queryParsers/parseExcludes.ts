@@ -1,29 +1,30 @@
 import { addPrefix, isArray, toString } from "..";
 import { AnyObject, ExcludeFields, SQL } from "../../types";
 
+const parseExclude = (excludes: string[], table: string): string[] => {
+	return excludes.map((exclude) => addPrefix(exclude, table, "."));
+};
+
 export const parseExcludes = <T extends AnyObject>(
 	tableName: string,
 	tableFields: string[],
 	excludes: ExcludeFields<T>
 ): SQL => {
-	const fields: string[] = [];
+	let excludesFields: string[] = [];
+
 	if (isArray<string[]>(excludes)) {
-		const excludesWithPrefix = excludes.map((exclude) =>
-			addPrefix(exclude, tableName, ".")
-		);
-
-		const goodFields = Object.values(tableFields).filter(
-			(filed) => !excludesWithPrefix.includes(filed)
-		);
-
-		fields.push(...goodFields);
+		excludesFields = parseExclude(excludes, tableName);
 	} else {
 		const tableAndFields = Object.entries(excludes);
-
-		tableAndFields.forEach(([table, excludeFields]) => {
-			fields.push(parseExcludes(table, tableFields, excludeFields));
-		});
+		tableAndFields.forEach(([table, fields]) =>
+			// eslint-disable-next-line sonarjs/no-empty-collection
+			excludesFields.concat(parseExclude(fields, table))
+		);
 	}
 
-	return toString(fields, ", ");
+	const goodFields = Object.values(tableFields).filter(
+		(filed) => !excludesFields.includes(filed)
+	);
+
+	return toString(goodFields, ", ");
 };
