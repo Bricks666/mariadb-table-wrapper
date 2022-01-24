@@ -18,7 +18,7 @@ export const parseExcludes = <T extends AnyObject>(
 		const tableAndFields = Object.entries(excludes);
 		tableAndFields.forEach(([table, fields]) =>
 			// eslint-disable-next-line sonarjs/no-empty-collection
-			excludesFields.concat(parseExclude(fields, table))
+			excludesFields.push(...parseExclude(fields, table))
 		);
 	}
 
