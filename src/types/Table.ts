@@ -19,16 +19,47 @@ export interface FieldConfig {
 	readonly isUnsigned?: boolean;
 	readonly isNotNull?: boolean;
 
-	readonly varcharLen?: number;
-	readonly enumValues?: string[];
+	readonly stringLen?: number;
+	readonly enumSetValues?: string[];
 }
 
 export enum SQLTypes {
+	/* NUMBERS */
+	TINYINT = "TINYINT",
 	SMALLINT = "SMALLINT",
-	VARCHAR = "VARCHAR",
-	DATE = "DATE",
+	MEDIUMINT = "MEDIUMINT",
+	INT = "INT",
+	BIGINT = "BIGINT",
+	DECIMAL = "DECIMAL",
+	FLOAT = "FLOAT",
+	DOUBLE = "DOUBLE",
 	BOOLEAN = "BOOL",
+
+	/* TEXT */
+	VARCHAR = "VARCHAR",
+	CHAR = "CHAR",
+	TINYTEXT = "TINYTEXT",
+	TEXT = "TEXT",
+	MEDIUMTEXT = "MEDIUMTEXT",
+	LARGETEXT = "LARGETEXT",
+
+	/* DATE */
+	DATE = "DATE",
+	TIME = "TIME",
+	DATETIME = "DATETIME",
+	YEAR = "YEAR",
+	TIMESTAMP = "TIMESTAMP",
+
+	/* COMPLEX */
 	ENUM = "ENUM",
+	NULL = "NULL",
+	SET = "SET",
+
+	/* BIN */
+	TINYBLOB = "TINYBLOB",
+	BLOB = "BLOB",
+	MEDIUMBLOB = "MEDIUMBLOB",
+	LARGEBLOB = "LARGEBLOB",
 }
 
 export type ForeignKeys<TF extends AnyObject> = {
