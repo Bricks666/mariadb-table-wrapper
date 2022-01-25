@@ -20,7 +20,10 @@ export const parseJoinTables = <T extends AnyObject>(
 	joinedTable?: string[]
 ): string => {
 	const SQLcommands: SQL[] = Object.entries(foreignKeys)
-		.filter(([tableName]) => !joinedTable || joinedTable.includes(tableName))
+		.filter(
+			([, reference]) =>
+				!joinedTable || joinedTable.includes(reference?.tableName as string)
+		)
 		.map((pair) => parseJoinTable(tableName, pair));
 
 	Object.values(foreignKeys).forEach((reference) => {
