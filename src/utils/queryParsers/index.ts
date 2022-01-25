@@ -9,3 +9,4 @@ export { parseAs } from "./parserAs";
 export { parseLimit } from "./parseLimit";
 export { parseValues } from "./parseValues";
 export { parseOrdering } from "./parseOrdering";
+export { parseGroupBy } from "./parseGroupBy";

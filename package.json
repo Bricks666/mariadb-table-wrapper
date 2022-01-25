@@ -28,9 +28,13 @@
 	"scripts": {
 		"build": "webpack",
 		"lint": "eslint --ext .ts ./src",
-		"pub": "npm run lint && npm run build && npm version patch && npm publish",
+		"pub": "npm run lint && npm run build && npm publish",
 		"dev": "node ./dist/index.js",
-		"compile": "tsc"
+		"compile": "tsc",
+
+		"version:patch": "npm version patch --no-git-tag-version",
+		"version:minor": "npm version minor --no-git-tag-version",
+		"version:major": "npm version major --no-git-tag-version"
 	},
 	"dependencies": {
 		"mariadb": "^2.5.5"

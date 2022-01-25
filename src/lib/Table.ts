@@ -24,7 +24,11 @@ import {
 	parseWhere,
 	undefinedToNull,
 } from "../utils";
-import { parseOrdering, parseValues } from "../utils/queryParsers";
+import {
+	parseGroupBy,
+	parseOrdering,
+	parseValues,
+} from "../utils/queryParsers";
 import { ParamsError } from "./Error";
 
 export class Table<TF extends AnyObject> {
@@ -79,6 +83,7 @@ export class Table<TF extends AnyObject> {
 			includes,
 			ordering,
 			joinedTable,
+			groupBy,
 			page = { page: 1, countOnPage: 100 },
 		} = config;
 		/* TODO:  Добавить проверки входных параметров */
@@ -87,6 +92,7 @@ export class Table<TF extends AnyObject> {
 		let where: SQL = "";
 		let joinSQL: SQL = "";
 		let orderBy: SQL = "";
+		let groupBySQL: SQL = "";
 		const tableFields: string[] = Object.keys(this.fields).map((field) =>
 			addPrefix(field, this.name, ".")
 		);
@@ -110,6 +116,10 @@ export class Table<TF extends AnyObject> {
 			where = parseWhere(filtersWithNull, this.name);
 		}
 
+		if (groupBy && !isEmpty(groupBy)) {
+			groupBySQL = parseGroupBy(groupBy, this.name);
+		}
+
 		if (ordering && !isEmpty(ordering)) {
 			const orderingWithNull = undefinedToNull<typeof ordering>(ordering);
 			orderBy = parseOrdering(orderingWithNull);
@@ -120,7 +130,7 @@ export class Table<TF extends AnyObject> {
 		const response = await this.connection?.query(
 			`SELECT ${select || "*"} FROM ${
 				this.name
-			} ${joinSQL} ${where} ${orderBy} ${limit};`
+			} ${joinSQL} ${where} ${groupBySQL} ${orderBy} ${limit};`
 		);
 
 		return Array.from<Response>(response);
