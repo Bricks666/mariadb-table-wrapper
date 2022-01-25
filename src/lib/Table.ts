@@ -15,21 +15,16 @@ import {
 	isArray,
 	isEmpty,
 	parseCreateTable,
-	parseLimit,
 	parseSQLKeys,
 	parseSetParams,
-	parseExcludes,
-	parseIncludes,
-	parseJoinTables,
 	parseWhere,
 	undefinedToNull,
-	toString,
 } from "../utils";
 import {
-	parseGroupBy,
-	parseOrdering,
 	parseValues,
-	parseCount,
+	parseSelectedFields,
+	parseSelectOptions,
+	parseJoinTables,
 } from "../utils/queryParsers";
 import { ParamsError } from "./Error";
 
@@ -76,71 +71,56 @@ export class Table<TF extends AnyObject> {
 	}
 
 	/* TODO: Сгруппировать свойства и вынести их парсинг в отдельные функции  */
-	// eslint-disable-next-line sonarjs/cognitive-complexity
 	public async select<Response = TF>(
 		config: TableSelectRequestConfig<TF> = {}
 	) {
 		const {
 			filters,
-			join,
 			excludes,
 			includes,
-			ordering,
+			orderBy,
 			joinedTable,
 			groupBy,
 			count,
-			page = { page: 1, countOnPage: 100 },
+			limit = { page: 1, countOnPage: 100 },
 		} = config;
 		/* TODO:  Добавить проверки входных параметров */
-
-		let select: SQL = "";
-		let where: SQL = "";
-		let joinSQL: SQL = "";
-		let orderBy: SQL = "";
-		let groupBySQL: SQL = "";
 		const tableFields: string[] = Object.keys(this.fields).map((field) =>
 			addPrefix(field, this.name)
 		);
 
-		if (join && this.foreignKeys) {
-			joinSQL = parseJoinTables(this.name, this.foreignKeys);
+		let joinSQL: SQL = "";
+
+		if (joinedTable?.enable && this.foreignKeys) {
 			/* TODO: перенести парсинг полей в конструктор и держать, как отдельное свойство */
-			tableFields.push(...getJoinedFields(this.foreignKeys, joinedTable));
+			joinSQL = parseJoinTables(
+				this.name,
+				this.foreignKeys,
+				joinedTable.joinTable
+			);
+			tableFields.push(
+				...getJoinedFields(this.foreignKeys, joinedTable.joinTable)
+			);
 		}
 
-		if (excludes && !isEmpty(excludes)) {
-			select = parseExcludes(this.name, tableFields, excludes);
-		}
+		const select: SQL = parseSelectedFields(
+			this.name,
+			tableFields,
+			excludes,
+			includes,
+			count
+		);
 
-		if (includes && !isEmpty(includes)) {
-			select = parseIncludes(this.name, includes);
-		}
-
-		if (filters && !isEmpty(filters)) {
-			const filtersWithNull = undefinedToNull<typeof filters>(filters);
-			where = parseWhere(filtersWithNull, this.name);
-		}
-
-		if (groupBy && !isEmpty(groupBy)) {
-			groupBySQL = parseGroupBy(groupBy, this.name);
-		}
-
-		if (ordering && !isEmpty(ordering)) {
-			const orderingWithNull = undefinedToNull<typeof ordering>(ordering);
-			orderBy = parseOrdering(orderingWithNull);
-		}
-
-		if (count && !isEmpty(count)) {
-			const parsedCount = parseCount(count);
-			select = select ? toString([select, parsedCount]) : parsedCount;
-		}
-
-		const limit = parseLimit(page);
+		const options: SQL = parseSelectOptions(
+			this.name,
+			filters,
+			groupBy,
+			orderBy,
+			limit
+		);
 
 		const response = await this.connection?.query(
-			`SELECT ${select || "*"} FROM ${
-				this.name
-			} ${joinSQL} ${where} ${groupBySQL} ${orderBy} ${limit};`
+			`SELECT ${select || "*"} FROM ${this.name} ${joinSQL} ${options};`
 		);
 
 		return Array.from<Response>(response);

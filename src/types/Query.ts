@@ -2,12 +2,11 @@ import { AnyObject, MappedObject } from ".";
 
 export interface TableSelectRequestConfig<TF extends AnyObject> {
 	readonly filters?: TableFilters<TF>;
-	readonly join?: boolean;
-	readonly joinedTable?: string[];
-	readonly page?: TablePage;
+	readonly joinedTable?: JoinTable;
+	readonly limit?: Limit;
 	readonly excludes?: ExcludeFields<TF>;
 	readonly includes?: IncludeFields<TF>;
-	readonly ordering?: Ordering<TF>;
+	readonly orderBy?: OrderBy<TF>;
 	/* TODO: Сделать счетчик */
 	readonly count?: Count<TF>;
 	readonly groupBy?: GroupBy<TF>;
@@ -17,7 +16,12 @@ export type TableFilters<TF extends AnyObject> = {
 	readonly [key in keyof TF]?: TF[key] | TF[key][];
 };
 
-export interface TablePage {
+export interface JoinTable {
+	readonly enable: boolean;
+	readonly joinTable?: string[];
+}
+
+export interface Limit {
 	readonly page: number;
 	readonly countOnPage: number;
 }
@@ -34,11 +38,11 @@ export type AssociateField<TF extends AnyObject, AdditionKeys = never> = [
 	string
 ];
 
-export type Ordering<TF extends AnyObject> = {
-	readonly [key in keyof TF]?: OrderingDirection;
+export type OrderBy<TF extends AnyObject> = {
+	readonly [key in keyof TF]?: OrderDirection;
 };
 
-export type OrderingDirection = "DESC" | "ASC";
+export type OrderDirection = "DESC" | "ASC";
 
 export type GroupBy<TF extends AnyObject> =
 	| Array<keyof TF>

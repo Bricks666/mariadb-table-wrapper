@@ -5,14 +5,10 @@ export { isArray } from "./isArray";
 export { isEmpty } from "./isEmpty";
 export { isObject } from "./isObject";
 export {
-	parseExcludes,
 	parseWhere,
 	parseSetParams,
 	parseSQLValues,
 	parseSQLKeys,
-	parseIncludes,
-	parseLimit,
-	parseAs,
 	parseJoinTables,
 } from "./queryParsers";
 export { receiveConfigs } from "./receiveConfigs";
