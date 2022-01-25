@@ -23,11 +23,13 @@ import {
 	parseJoinTables,
 	parseWhere,
 	undefinedToNull,
+	toString,
 } from "../utils";
 import {
 	parseGroupBy,
 	parseOrdering,
 	parseValues,
+	parseCount,
 } from "../utils/queryParsers";
 import { ParamsError } from "./Error";
 
@@ -73,6 +75,8 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(`INSERT ${this.name}(${fields}) ${values};`);
 	}
 
+	/* TODO: Сгруппировать свойства и вынести их парсинг в отдельные функции  */
+	// eslint-disable-next-line sonarjs/cognitive-complexity
 	public async select<Response = TF>(
 		config: TableSelectRequestConfig<TF> = {}
 	) {
@@ -84,17 +88,18 @@ export class Table<TF extends AnyObject> {
 			ordering,
 			joinedTable,
 			groupBy,
+			count,
 			page = { page: 1, countOnPage: 100 },
 		} = config;
 		/* TODO:  Добавить проверки входных параметров */
 
-		let select: SQL = "*";
+		let select: SQL = "";
 		let where: SQL = "";
 		let joinSQL: SQL = "";
 		let orderBy: SQL = "";
 		let groupBySQL: SQL = "";
 		const tableFields: string[] = Object.keys(this.fields).map((field) =>
-			addPrefix(field, this.name, ".")
+			addPrefix(field, this.name)
 		);
 
 		if (join && this.foreignKeys) {
@@ -123,6 +128,11 @@ export class Table<TF extends AnyObject> {
 		if (ordering && !isEmpty(ordering)) {
 			const orderingWithNull = undefinedToNull<typeof ordering>(ordering);
 			orderBy = parseOrdering(orderingWithNull);
+		}
+
+		if (count && !isEmpty(count)) {
+			const parsedCount = parseCount(count);
+			select = select ? toString([select, parsedCount]) : parsedCount;
 		}
 
 		const limit = parseLimit(page);

@@ -28,7 +28,7 @@ export const getJoinedFields = <T extends AnyObject>(
 				);
 
 				fields.push(
-					...refFields.map((field) => addPrefix(field, refConfig.table, "."))
+					...refFields.map((field) => addPrefix(field, refConfig.table))
 				);
 
 				if (refConfig.foreignKeys) {

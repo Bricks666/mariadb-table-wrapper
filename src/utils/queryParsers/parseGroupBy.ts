@@ -9,12 +9,12 @@ export const parseGroupBy = <TF extends AnyObject>(
 
 	if (isArray(groupBy)) {
 		grouping.push(
-			...groupBy.map((field) => addPrefix(field as string, tableName, "."))
+			...groupBy.map((field) => addPrefix(field as string, tableName))
 		);
 	} else {
 		const tableAndGroup = Object.entries(groupBy);
 		tableAndGroup.forEach(([tableName, group]) => {
-			grouping.push(...group.map((field) => addPrefix(field, tableName, ".")));
+			grouping.push(...group.map((field) => addPrefix(field, tableName)));
 		});
 	}
 

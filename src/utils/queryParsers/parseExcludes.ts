@@ -2,7 +2,7 @@ import { addPrefix, isArray, toString } from "..";
 import { AnyObject, ExcludeFields, SQL } from "../../types";
 
 const parseExclude = (excludes: string[], table: string): string[] => {
-	return excludes.map((exclude) => addPrefix(exclude, table, "."));
+	return excludes.map((exclude) => addPrefix(exclude, table));
 };
 
 export const parseExcludes = <T extends AnyObject>(
@@ -17,7 +17,6 @@ export const parseExcludes = <T extends AnyObject>(
 	} else {
 		const tableAndFields = Object.entries(excludes);
 		tableAndFields.forEach(([table, fields]) =>
-			// eslint-disable-next-line sonarjs/no-empty-collection
 			excludesFields.push(...parseExclude(fields, table))
 		);
 	}

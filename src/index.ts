@@ -55,6 +55,7 @@ const start = async () => {
 		const grouped = await user.select({
 			groupBy: ["groupId"],
 			includes: ["groupId"],
+			count: [["*", "tasksCount"]],
 		});
 		console.log(grouped);
 		process.exit();

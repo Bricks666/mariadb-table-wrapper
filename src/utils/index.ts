@@ -1,7 +1,6 @@
 export { accumulateConfigs } from "./accumulateConfigs";
 export { addPrefix } from "./addPrefix";
 export { getJoinedFields } from "./getJoinedFields";
-export { getVarName } from "./getVarName";
 export { isArray } from "./isArray";
 export { isEmpty } from "./isEmpty";
 export { isObject } from "./isObject";

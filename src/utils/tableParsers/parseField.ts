@@ -5,9 +5,9 @@ export const parseField = ([fieldName, fieldConfig]: [
 	string,
 	FieldConfig
 ]): SQL => {
-	let validField: SQL = `${fieldName}`;
+	let validField: SQL = `${fieldName} `;
 
-	validField += " " + parseFieldType(fieldConfig);
+	validField += parseFieldType(fieldConfig);
 
 	if (fieldConfig.isUnique) {
 		validField += " UNIQUE";

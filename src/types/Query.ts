@@ -9,8 +9,7 @@ export interface TableSelectRequestConfig<TF extends AnyObject> {
 	readonly includes?: IncludeFields<TF>;
 	readonly ordering?: Ordering<TF>;
 	/* TODO: Сделать счетчик */
-	readonly count?: never;
-	/* TODO: Сделать группировку */
+	readonly count?: Count<TF>;
 	readonly groupBy?: GroupBy<TF>;
 }
 
@@ -30,7 +29,10 @@ export type IncludeFields<TF extends AnyObject> =
 	| Array<AssociateField<TF> | keyof TF>
 	| MappedObject<Array<AssociateField<AnyObject> | string>>;
 
-export type AssociateField<TF extends AnyObject> = [keyof TF, string];
+export type AssociateField<TF extends AnyObject, AdditionKeys = never> = [
+	keyof TF | AdditionKeys,
+	string
+];
 
 export type Ordering<TF extends AnyObject> = {
 	readonly [key in keyof TF]?: OrderingDirection;
@@ -41,6 +43,8 @@ export type OrderingDirection = "DESC" | "ASC";
 export type GroupBy<TF extends AnyObject> =
 	| Array<keyof TF>
 	| MappedObject<string[]>;
+
+export type Count<TF extends AnyObject> = Array<AssociateField<TF, "*">>;
 
 export interface Expression<TF extends AnyObject> {
 	readonly field: keyof TF;

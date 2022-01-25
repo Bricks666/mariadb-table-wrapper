@@ -11,7 +11,7 @@ export const parseIncludes = <T extends AnyObject>(
 	if (isArray(includes)) {
 		includes.forEach((el) => {
 			const field = isArray(el) ? parseAs(el) : el.toString();
-			fields.push(addPrefix(field, tableName, "."));
+			fields.push(addPrefix(field, tableName));
 		});
 	} else {
 		const pairs = Object.entries(includes);

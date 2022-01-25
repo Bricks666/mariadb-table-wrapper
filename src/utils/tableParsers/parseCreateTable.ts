@@ -34,7 +34,7 @@ export const parseCreateTable = <TF extends MappedObject<string>>(
 	const SQLScript: SQL = `CREATE TABLE ${
 		safeCreating ? "IF NOT EXISTS" : ""
 	} ${tableName}(${parsedFields}${primaryKey && "," + primaryKey}${
-		parsedForeignKeys !== "" ? "," + parsedForeignKeys : ""
+		parsedForeignKeys && "," + parsedForeignKeys
 	});`;
 
 	return SQLScript;
