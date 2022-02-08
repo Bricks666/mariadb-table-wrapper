@@ -99,7 +99,11 @@ export class Table<TF extends AnyObject> {
 				joinedTable.joinTable
 			);
 			tableFields.push(
-				...getJoinedFields(this.foreignKeys, joinedTable.joinTable)
+				...getJoinedFields(
+					this.foreignKeys,
+					joinedTable.joinTable,
+					joinedTable.recurseInclude
+				)
 			);
 		}
 
