@@ -17,7 +17,8 @@ const parseJoinTable = (
 export const parseJoinTables = <T extends AnyObject>(
 	tableName: string,
 	foreignKeys: ForeignKeys<T>,
-	joinedTable?: string[]
+	joinedTable?: string[],
+	recurseJoin = false
 ): string => {
 	const SQLcommands: SQL[] = Object.entries(foreignKeys)
 		.filter(
@@ -26,18 +27,20 @@ export const parseJoinTables = <T extends AnyObject>(
 		)
 		.map((pair) => parseJoinTable(tableName, pair));
 
-	Object.values(foreignKeys).forEach((reference) => {
-		if (reference) {
-			const referenceConfig = receiveConfigs(reference.tableName);
-			if (!!referenceConfig && !!referenceConfig.foreignKeys) {
-				const referenceJoin = parseJoinTables(
-					referenceConfig.table,
-					referenceConfig.foreignKeys
-				);
-				SQLcommands.push(referenceJoin);
+	if (recurseJoin) {
+		Object.values(foreignKeys).forEach((reference) => {
+			if (reference) {
+				const referenceConfig = receiveConfigs(reference.tableName);
+				if (!!referenceConfig && !!referenceConfig.foreignKeys) {
+					const referenceJoin = parseJoinTables(
+						referenceConfig.table,
+						referenceConfig.foreignKeys
+					);
+					SQLcommands.push(referenceJoin);
+				}
 			}
-		}
-	});
+		});
+	}
 
 	return toString(SQLcommands, " ");
 };
