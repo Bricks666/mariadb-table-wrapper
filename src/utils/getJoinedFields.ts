@@ -6,7 +6,8 @@ import { AnyObject, ForeignKeys, Reference } from "..";
  */
 export const getJoinedFields = <T extends AnyObject>(
 	foreignKeys: ForeignKeys<T>,
-	joinedTable?: string[]
+	joinedTable?: string[],
+	recurseJoin = false
 ): string[] => {
 	let references = Object.values(foreignKeys);
 	if (joinedTable && !isEmpty(joinedTable)) {
@@ -31,7 +32,7 @@ export const getJoinedFields = <T extends AnyObject>(
 					...refFields.map((field) => addPrefix(field, refConfig.table))
 				);
 
-				if (refConfig.foreignKeys) {
+				if (refConfig.foreignKeys && recurseJoin) {
 					fields.push(...getJoinedFields(refConfig.foreignKeys));
 				}
 			}
