@@ -4,3 +4,4 @@ export { parseField } from "./parseField";
 export { parseFieldType } from "./parseFieldType";
 export { parseForeignKey } from "./parseForeignKey";
 export { parsePrimaryKeys } from "./parsePrimaryKeys";
+export { parseCheck } from "./parseCheck";

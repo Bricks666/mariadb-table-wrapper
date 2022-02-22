@@ -7,60 +7,61 @@ export interface TableConfig<TF extends AnyObject> {
 	readonly foreignKeys?: ForeignKeys<TF>;
 }
 
-export type Fields<TF> = {
-	readonly [key in keyof TF]: FieldConfig;
+export type Fields<TF extends AnyObject> = {
+	readonly [key in keyof TF]: FieldConfig<TF[key]>;
 };
 
-export interface FieldConfig {
+export interface FieldConfig<T extends ValidSQLType> {
 	readonly type: SQLTypes;
 	readonly isAutoIncrement?: boolean;
 	readonly isPrimaryKey?: boolean;
 	readonly isUnique?: boolean;
 	readonly isUnsigned?: boolean;
 	readonly isNotNull?: boolean;
+	readonly check?: Check<T>;
+	readonly default?: T;
 
 	readonly stringLen?: number;
-	readonly enumSetValues?: string[];
+	readonly enumSetValues?: T[];
 }
 
-export enum SQLTypes {
+export type SQLTypes =
 	/* NUMBERS */
-	TINYINT = "TINYINT",
-	SMALLINT = "SMALLINT",
-	MEDIUMINT = "MEDIUMINT",
-	INT = "INT",
-	BIGINT = "BIGINT",
-	DECIMAL = "DECIMAL",
-	FLOAT = "FLOAT",
-	DOUBLE = "DOUBLE",
-	BOOLEAN = "BOOL",
+	| "TINYINT"
+	| "SMALLINT"
+	| "MEDIUMINT"
+	| "INT"
+	| "BIGINT"
+	| "DECIMAL"
+	| "FLOAT"
+	| "DOUBLE"
+	| "BOOL"
 
 	/* TEXT */
-	VARCHAR = "VARCHAR",
-	CHAR = "CHAR",
-	TINYTEXT = "TINYTEXT",
-	TEXT = "TEXT",
-	MEDIUMTEXT = "MEDIUMTEXT",
-	LARGETEXT = "LARGETEXT",
+	| "VARCHAR"
+	| "CHAR"
+	| "TINYTEXT"
+	| "TEXT"
+	| "MEDIUMTEXT"
+	| "LARGETEXT"
 
 	/* DATE */
-	DATE = "DATE",
-	TIME = "TIME",
-	DATETIME = "DATETIME",
-	YEAR = "YEAR",
-	TIMESTAMP = "TIMESTAMP",
+	| "DATE"
+	| "TIME"
+	| "DATETIME"
+	| "YEAR"
+	| "TIMESTAMP"
 
 	/* COMPLEX */
-	ENUM = "ENUM",
-	NULL = "NULL",
-	SET = "SET",
+	| "ENUM"
+	| "NULL"
+	| "SET"
 
 	/* BIN */
-	TINYBLOB = "TINYBLOB",
-	BLOB = "BLOB",
-	MEDIUMBLOB = "MEDIUMBLOB",
-	LARGEBLOB = "LARGEBLOB",
-}
+	| "TINYBLOB"
+	| "BLOB"
+	| "MEDIUMBLOB"
+	| "LARGEBLOB";
 
 export type ForeignKeys<TF extends AnyObject> = {
 	readonly [key in keyof TF]?: Reference;
@@ -70,3 +71,28 @@ export interface Reference {
 	readonly tableName: string;
 	readonly field: string;
 }
+export type Check<T extends ValidSQLType> =
+	| Expression<T>
+	| Expression<T>[]
+	| Expression<T>[][];
+
+export interface Expression<T extends ValidSQLType> {
+	readonly operator: Operators;
+	readonly value?: T | T[];
+	readonly not?: boolean;
+}
+
+export type Operators =
+	| "="
+	| "<"
+	| "<="
+	| ">"
+	| ">="
+	| "!="
+	| "between"
+	| "in"
+	| "like"
+	| "regExp"
+	| "is null";
+
+export type ValidSQLType = string | number;

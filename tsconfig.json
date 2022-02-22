@@ -4,7 +4,10 @@
 		/* Projects */
 		"outDir": "./dist",
 		"rootDir": "./src/", //Путь к файлам проекта
-		"baseUrl": ".", //Базовый адрес
+		"baseUrl": "src", //Базовый адрес
+		"paths": {
+			"@/*": ["*"]
+		},
 
 		/* Language and Environment */
 		"target": "es2017" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,

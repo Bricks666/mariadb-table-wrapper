@@ -1,6 +1,8 @@
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
+const { TsconfigPathsPlugin } = require("tsconfig-paths-webpack-plugin");
 
+/** @type {import('webpack').Configuration} */
 module.exports = {
 	mode: "production",
 	entry: "./src/index.ts",
@@ -20,10 +22,16 @@ module.exports = {
 			type: "commonjs-module",
 		},
 		chunkFormat: "module",
+		clean: true,
 	},
 
 	resolve: {
 		extensions: [".ts", ".js"],
+		plugins: [
+			new TsconfigPathsPlugin({
+				configFile: "./tsconfig.json",
+			}),
+		],
 	},
 	externals: [nodeExternals()],
 	module: {

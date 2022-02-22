@@ -1,20 +1,20 @@
 import { isEmpty, toJSON, toString } from "..";
-import { FieldConfig, SQLTypes } from "../../types";
+import { FieldConfig, SQLTypes, ValidSQLType } from "@/types";
 
-const stringTypes = [SQLTypes.VARCHAR, SQLTypes.CHAR];
-const unsignedTypes = [
-	SQLTypes.TINYINT,
-	SQLTypes.SMALLINT,
-	SQLTypes.INT,
-	SQLTypes.MEDIUMINT,
-	SQLTypes.BIGINT,
+const stringTypes: SQLTypes[] = ["VARCHAR", "CHAR"];
+const unsignedTypes: SQLTypes[] = [
+	"TINYINT",
+	"SMALLINT",
+	"INT",
+	"MEDIUMINT",
+	"BIGINT",
 ];
-const complexTypes = [SQLTypes.ENUM, SQLTypes.SET];
+const complexTypes: SQLTypes[] = ["ENUM", "SET"];
 
-export const parseFieldType = ({
+export const parseFieldType = <TF extends ValidSQLType>({
 	type,
 	...fieldConfig
-}: FieldConfig): string => {
+}: FieldConfig<TF>): string => {
 	let SQLType: string = type;
 
 	if (stringTypes.includes(type)) {
