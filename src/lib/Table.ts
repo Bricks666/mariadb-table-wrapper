@@ -56,7 +56,7 @@ export class Table<TF extends AnyObject> {
 			this.foreignKeys
 		);
 
-		await this.connection?.query(intiSQL);
+		await this.connection.query(intiSQL);
 	}
 
 	public async insert<Request extends Partial<TF> = Partial<TF>>(
@@ -70,7 +70,6 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(`INSERT ${this.name}(${fields}) ${values};`);
 	}
 
-	/* TODO: Сгруппировать свойства и вынести их парсинг в отдельные функции  */
 	public async select<Response = TF>(
 		config: TableSelectRequestConfig<TF> = {}
 	) {
@@ -178,5 +177,8 @@ export class Table<TF extends AnyObject> {
 
 	public async deleteAll() {
 		await this.connection?.query(`DELETE FROM ${this.name};`);
+	}
+	public async describe() {
+		return Array.from(await this.connection?.query(`DESC ${this.name};`));
 	}
 }

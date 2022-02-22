@@ -7,7 +7,6 @@ export interface TableSelectRequestConfig<TF extends AnyObject> {
 	readonly excludes?: ExcludeFields<TF>;
 	readonly includes?: IncludeFields<TF>;
 	readonly orderBy?: OrderBy<TF>;
-	/* TODO: Сделать счетчик */
 	readonly count?: Count<TF>;
 	readonly groupBy?: GroupBy<TF>;
 }
@@ -50,11 +49,3 @@ export type GroupBy<TF extends AnyObject> =
 	| MappedObject<string[]>;
 
 export type Count<TF extends AnyObject> = Array<AssociateField<TF, "*">>;
-
-export interface Expression<TF extends AnyObject> {
-	readonly field: keyof TF;
-	readonly operator: Operators;
-	readonly value: string | number;
-}
-
-export type Operators = "=" | "<" | "<=" | ">" | ">=" | "!=";

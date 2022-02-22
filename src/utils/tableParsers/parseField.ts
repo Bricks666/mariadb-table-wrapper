@@ -1,9 +1,10 @@
-import { parseFieldType } from ".";
-import { FieldConfig, SQL } from "../../types";
+import { parseCheck, parseFieldType } from ".";
+import { FieldConfig, SQL, ValidSQLType } from "@/types";
+import { parseSQLValues } from "..";
 
-export const parseField = ([fieldName, fieldConfig]: [
+export const parseField = <TF extends ValidSQLType>([fieldName, fieldConfig]: [
 	string,
-	FieldConfig
+	FieldConfig<TF>
 ]): SQL => {
 	let validField: SQL = `${fieldName} `;
 
@@ -19,6 +20,16 @@ export const parseField = ([fieldName, fieldConfig]: [
 
 	if (fieldConfig.isNotNull) {
 		validField += " NOT NULL";
+	}
+	if (fieldConfig.default) {
+		const value =
+			typeof fieldConfig.default === "string"
+				? parseSQLValues([fieldConfig.default])
+				: fieldConfig.default;
+		validField += ` DEFAULT ${value}`;
+	}
+	if (fieldConfig.check) {
+		validField += ` ${parseCheck(fieldName, fieldConfig.check)}`;
 	}
 
 	return validField;

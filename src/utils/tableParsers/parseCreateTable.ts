@@ -1,13 +1,6 @@
 import { parseField, parseForeignKey, parsePrimaryKeys } from ".";
-import {
-	FieldConfig,
-	Fields,
-	ForeignKeys,
-	MappedObject,
-	Reference,
-	SQL,
-} from "../../types";
-import { toString } from "..";
+import { Fields, ForeignKeys, MappedObject, Reference, SQL } from "@/types";
+import { toString } from "@/utils";
 
 export const parseCreateTable = <TF extends MappedObject<string>>(
 	tableName: string,
@@ -15,14 +8,14 @@ export const parseCreateTable = <TF extends MappedObject<string>>(
 	safeCreating: boolean,
 	foreignKeys?: ForeignKeys<TF>
 ): SQL => {
-	const fieldPairs = Object.entries<FieldConfig>(fields);
+	const fieldPairs = Object.entries(fields);
 	const parsedFields: SQL = toString(fieldPairs.map(parseField));
 
 	let parsedForeignKeys: SQL = "";
 	if (typeof foreignKeys !== "undefined") {
 		parsedForeignKeys = toString(
 			Object.entries(foreignKeys)
-				.filter<[string, Reference]>(
+				.filter(
 					(pair): pair is [string, Reference] => typeof pair[1] !== "undefined"
 				)
 				.map(parseForeignKey)
