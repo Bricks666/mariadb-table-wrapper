@@ -20,7 +20,7 @@
 		"noUnusedParameters": true, //Показывать ошибку, если есть неиспользуемые параметры
 
 		/* Modules */
-		"module": "CommonJS" /* Specify what module code is generated. */,
+		"module": "ES2020" /* Specify what module code is generated. */,
 
 		/* JavaScript Support */
 
