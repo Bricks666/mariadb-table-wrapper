@@ -31,8 +31,8 @@ const parseOrdering = <T extends AnyObject>(orderBy: OrderBy<T>) => {
 };
 
 const parseGroupBy = <TF extends AnyObject>(
-	groupBy: GroupBy<TF>,
-	tableName: string
+	tableName: string,
+	groupBy: GroupBy<TF>
 ): string => {
 	const grouping: string[] = [];
 
@@ -64,11 +64,11 @@ export const parseSelectOptions = <TF extends AnyObject>(
 
 	if (filters && !isEmpty(filters)) {
 		const filtersWithNull = undefinedToNull<typeof filters>(filters);
-		where = parseWhere(filtersWithNull, tableName);
+		where = parseWhere(tableName, filtersWithNull);
 	}
 
 	if (groupBy && !isEmpty(groupBy)) {
-		group = parseGroupBy(groupBy, tableName);
+		group = parseGroupBy(tableName, groupBy);
 	}
 
 	if (orderBy && !isEmpty(orderBy)) {

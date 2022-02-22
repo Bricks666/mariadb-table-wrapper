@@ -91,7 +91,6 @@ export class Table<TF extends AnyObject> {
 		let joinSQL: SQL = "";
 
 		if (joinedTable?.enable && this.foreignKeys) {
-			/* TODO: перенести парсинг полей в конструктор и держать, как отдельное свойство */
 			joinSQL = parseJoinTables(
 				this.name,
 				this.foreignKeys,
@@ -140,7 +139,7 @@ export class Table<TF extends AnyObject> {
 			throw new ParamsError("select", ["filters"], "filters must not be empty");
 		}
 
-		const where: SQL = parseWhere(filters);
+		const where: SQL = parseWhere(this.name, filters);
 
 		await this.connection?.query(`DELETE FROM ${this.name} ${where};`);
 	}
@@ -162,7 +161,7 @@ export class Table<TF extends AnyObject> {
 		}
 
 		const update: SQL = parseSetParams(newValues);
-		const where: SQL = parseWhere(filters);
+		const where: SQL = parseWhere(this.name, filters);
 
 		await this.connection?.query(`UPDATE ${this.name} SET ${update} ${where};`);
 	}

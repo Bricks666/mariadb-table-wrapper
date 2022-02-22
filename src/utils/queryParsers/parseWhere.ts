@@ -1,26 +1,17 @@
-import { parseSQLValues } from ".";
-import { addPrefix, isArray, toString } from "..";
-import { AnyObject, SQL, TableFilters } from "../../types";
+import { AnyObject, Check, SQL, TableFilters, ValidSQLType } from "@/types";
+import { addPrefix, toString } from "@/utils";
+import { parseCheck } from "../tableParsers";
 
 export const parseWhere = <T extends AnyObject>(
-	filters: TableFilters<T>,
-	tableName?: string
+	tableName: string,
+	filters: TableFilters<T>
 ): SQL => {
 	const keys = Object.keys(filters);
-	const values = Object.values(filters);
 
-	const filtersArray: SQL[] = keys.map((key, i) => {
-		const validKey = tableName ? addPrefix(key, tableName) : key;
-		let filter: SQL = `${validKey} `;
+	const conditions: SQL[] = keys.map((key) =>
+		parseCheck(addPrefix(key, tableName), filters[key] as Check<ValidSQLType>)
+	);
+	const where: SQL = toString(conditions, " AND ");
 
-		if (isArray(values[i])) {
-			filter += `IN (${parseSQLValues(values[i])})`;
-		} else {
-			filter += `= '${values[i]}'`;
-		}
-
-		return filter;
-	});
-
-	return `WHERE ${toString(filtersArray, " AND ")}`;
+	return `WHERE ${where}`;
 };
