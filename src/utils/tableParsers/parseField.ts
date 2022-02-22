@@ -29,7 +29,7 @@ export const parseField = <TF extends ValidSQLType>([fieldName, fieldConfig]: [
 		validField += ` DEFAULT ${value}`;
 	}
 	if (fieldConfig.check) {
-		validField += ` ${parseCheck(fieldName, fieldConfig.check)}`;
+		validField += ` CHECK (${parseCheck(fieldName, fieldConfig.check)})`;
 	}
 
 	return validField;

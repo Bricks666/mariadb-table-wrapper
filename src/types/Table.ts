@@ -71,7 +71,10 @@ export interface Reference {
 	readonly tableName: string;
 	readonly field: string;
 }
-export type Check<T extends ValidSQLType> = Expression<T> | Expression<T>[];
+export type Check<T extends ValidSQLType> =
+	| Expression<T>
+	| Expression<T>[]
+	| Expression<T>[][];
 
 export interface Expression<T extends ValidSQLType> {
 	readonly operator: Operators;
