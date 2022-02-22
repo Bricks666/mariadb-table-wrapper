@@ -18,7 +18,7 @@ export interface FieldConfig<T extends ValidSQLType> {
 	readonly isUnique?: boolean;
 	readonly isUnsigned?: boolean;
 	readonly isNotNull?: boolean;
-	readonly check?: Check<T>;
+	readonly check?: Expressions<T>;
 	readonly default?: T;
 
 	readonly stringLen?: number;
@@ -71,7 +71,7 @@ export interface Reference {
 	readonly tableName: string;
 	readonly field: string;
 }
-export type Check<T extends ValidSQLType> =
+export type Expressions<T extends ValidSQLType> =
 	| Expression<T>
 	| Expression<T>[]
 	| Expression<T>[][];
@@ -80,6 +80,7 @@ export interface Expression<T extends ValidSQLType> {
 	readonly operator: Operators;
 	readonly value?: T | T[];
 	readonly not?: boolean;
+	readonly template?: string;
 }
 
 export type Operators =

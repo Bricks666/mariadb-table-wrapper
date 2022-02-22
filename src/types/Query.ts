@@ -1,7 +1,7 @@
-import { AnyObject, Check, MappedObject } from ".";
+import { AnyObject, Expressions, MappedObject } from ".";
 
 export interface TableSelectRequestConfig<TF extends AnyObject> {
-	readonly filters?: TableFilters<TF>;
+	readonly filters?: TableFilters<TF> | TableFilters<TF>[];
 	readonly joinedTable?: JoinTable;
 	readonly limit?: Limit;
 	readonly excludes?: ExcludeFields<TF>;
@@ -12,7 +12,7 @@ export interface TableSelectRequestConfig<TF extends AnyObject> {
 }
 
 export type TableFilters<TF extends AnyObject> = {
-	readonly [key in keyof TF]?: Check<TF[key]>;
+	readonly [key in keyof TF]?: Expressions<TF[key]>;
 };
 
 export interface JoinTable {

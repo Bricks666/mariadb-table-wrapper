@@ -1,17 +1,41 @@
-import { AnyObject, Check, SQL, TableFilters, ValidSQLType } from "@/types";
-import { addPrefix, toString } from "@/utils";
-import { parseCheck } from "../tableParsers";
+import {
+	AnyObject,
+	Expressions,
+	SQL,
+	TableFilters,
+	ValidSQLType,
+} from "@/types";
+import { addPrefix, toString, isArray } from "@/utils";
+import { parseExpressions } from "../tableParsers";
 
 export const parseWhere = <T extends AnyObject>(
 	tableName: string,
-	filters: TableFilters<T>
+	filters: TableFilters<T> | TableFilters<T>[]
 ): SQL => {
-	const keys = Object.keys(filters);
+	const SQLFilters: SQL[] = [];
+	if (isArray(filters)) {
+		filters.forEach((filter) => {
+			SQLFilters.push(parseFilter(tableName, filter));
+		});
+	} else {
+		SQLFilters.push(parseFilter(tableName, filters));
+	}
+
+	return `WHERE ${toString(SQLFilters, " OR ")}`;
+};
+
+const parseFilter = <T extends AnyObject>(
+	tableName: string,
+	filter: TableFilters<T>
+) => {
+	const keys = Object.keys(filter);
 
 	const conditions: SQL[] = keys.map((key) =>
-		parseCheck(addPrefix(key, tableName), filters[key] as Check<ValidSQLType>)
+		parseExpressions(
+			addPrefix(key, tableName),
+			filter[key] as Expressions<ValidSQLType>
+		)
 	);
-	const where: SQL = toString(conditions, " AND ");
-
-	return `WHERE ${where}`;
+	const SQLfilter: SQL = toString(conditions, " AND ");
+	return SQLfilter;
 };

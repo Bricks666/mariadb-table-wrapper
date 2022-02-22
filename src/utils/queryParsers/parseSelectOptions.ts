@@ -52,7 +52,7 @@ const parseGroupBy = <TF extends AnyObject>(
 
 export const parseSelectOptions = <TF extends AnyObject>(
 	tableName: string,
-	filters?: TableFilters<TF>,
+	filters?: TableFilters<TF> | TableFilters<TF>[],
 	groupBy?: GroupBy<TF>,
 	orderBy?: OrderBy<TF>,
 	limit?: Limit
@@ -63,8 +63,7 @@ export const parseSelectOptions = <TF extends AnyObject>(
 	let page: SQL = "";
 
 	if (filters && !isEmpty(filters)) {
-		const filtersWithNull = undefinedToNull<typeof filters>(filters);
-		where = parseWhere(tableName, filtersWithNull);
+		where = parseWhere(tableName, filters);
 	}
 
 	if (groupBy && !isEmpty(groupBy)) {

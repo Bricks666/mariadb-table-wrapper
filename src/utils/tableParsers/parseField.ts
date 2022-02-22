@@ -1,4 +1,4 @@
-import { parseCheck, parseFieldType } from ".";
+import { parseExpressions, parseFieldType } from ".";
 import { FieldConfig, SQL, ValidSQLType } from "@/types";
 import { parseSQLValues } from "..";
 
@@ -29,7 +29,7 @@ export const parseField = <TF extends ValidSQLType>([fieldName, fieldConfig]: [
 		validField += ` DEFAULT ${value}`;
 	}
 	if (fieldConfig.check) {
-		validField += ` CHECK (${parseCheck(fieldName, fieldConfig.check)})`;
+		validField += ` CHECK (${parseExpressions(fieldName, fieldConfig.check)})`;
 	}
 
 	return validField;

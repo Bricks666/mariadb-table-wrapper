@@ -1,17 +1,17 @@
-import { Check, Expression, SQL, ValidSQLType } from "@/types";
+import { Expressions, Expression, SQL, ValidSQLType } from "@/types";
 import { isArray, toString } from "@/utils";
 import { parseExpression } from ".";
 
-export const parseCheck = <T extends ValidSQLType>(
+export const parseExpressions = <T extends ValidSQLType>(
 	field: string,
-	check: Check<T>
+	check: Expressions<T>
 ): SQL => {
 	let condition: SQL = "";
 
 	if (isArray(check)) {
 		if (isArray(check[0])) {
 			condition = toString(
-				check.map((check) => parseCheck(field, check)),
+				check.map((check) => parseExpressions(field, check)),
 				" OR "
 			);
 		} else {
@@ -26,5 +26,5 @@ export const parseCheck = <T extends ValidSQLType>(
 		condition = parseExpression(field, check);
 	}
 
-	return condition;
+	return `(${condition})`;
 };

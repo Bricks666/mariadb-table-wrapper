@@ -5,28 +5,32 @@ import { parseSQLValues } from "../queryParsers";
 
 export const parseExpression = <T extends ValidSQLType>(
 	field: string,
-	{ operator, value, not }: Expression<T>
+	{ operator, value, not, template }: Expression<T>
 ): SQL => {
 	const SQLOperator = operator.toUpperCase();
 	let condition = `${field} `;
 	const SQLnot = not ? "NOT" : "";
-	abortInvalidParsing(operator, value);
 
 	/* Нужны наглядные приведения, потому что TS, он не считывает адекватно тип после abort, даже при гуарде */
 	switch (operator) {
 		case "between": {
+			abortInvalidParsing(operator, value);
+
 			value = value as T[];
 			condition += ` ${SQLnot} ${SQLOperator} ${value[0]} AND ${value[1]}`;
 			break;
 		}
 		case "in": {
+			abortInvalidParsing(operator, value);
+
 			value = value as T[];
 			condition += ` ${SQLnot} ${SQLOperator} (${parseSQLValues(value)})`;
 			break;
 		}
 		case "regExp":
 		case "like": {
-			condition += ` ${SQLnot} ${SQLOperator} ${value}`;
+			abortInvalidParsing(operator, template);
+			condition += ` ${SQLnot} ${SQLOperator} ${parseSQLValues([template])}`;
 			break;
 		}
 		case "is null": {
@@ -34,6 +38,8 @@ export const parseExpression = <T extends ValidSQLType>(
 			break;
 		}
 		default: {
+			abortInvalidParsing(operator, value);
+
 			value = value as T;
 			const SQlValue =
 				typeof value === "string" ? parseSQLValues([value]) : value;
