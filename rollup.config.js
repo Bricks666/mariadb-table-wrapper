@@ -5,22 +5,25 @@ import babel from "@rollup/plugin-babel";
 
 import pkg from "./package.json";
 
+const generateOutput = (format) => {
+	return {
+		file: outputPath[format],
+		exports: "named",
+		compact: true,
+		format,
+	};
+};
+
+const outputPath = {
+	cjs: pkg.main,
+	es: pkg.module,
+};
+
 /** @type {import("rollup").RollupOptions} */
 export default {
 	input: "./src/index.ts",
-	external: [/.json/, /node_modules/],
-	output: [
-		{
-			file: pkg.main,
-			format: "cjs",
-			exports: "named",
-		},
-		{
-			file: pkg.module,
-			format: "es",
-			exports: "named",
-		},
-	],
+	external: [/.json/, /node_modules/, /dist/],
+	output: [generateOutput("cjs"), generateOutput("es")],
 	plugins: [
 		resolve(),
 		typescript({
