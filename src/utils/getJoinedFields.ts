@@ -1,4 +1,6 @@
-import { addPrefix, isEmpty, receiveConfigs } from ".";
+import { addPrefix } from "./addPrefix";
+import { isEmpty } from "./isEmpty";
+import { receiveConfigs } from "./receiveConfigs";
 import { AnyObject, ForeignKeys, Reference } from "..";
 
 /*
