@@ -5,9 +5,10 @@ import {
 	SQL,
 	TableFilters,
 	AnyObject,
-	TableSelectRequestConfig,
+	SelectQueryConfig,
 	Fields,
 	ForeignKeys,
+	QueryConfig,
 } from "@/types";
 import {
 	accumulateConfigs,
@@ -70,9 +71,7 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(`INSERT ${this.name}(${fields}) ${values};`);
 	}
 
-	public async select<Response = TF>(
-		config: TableSelectRequestConfig<TF> = {}
-	) {
+	public async select<Response = TF>(config: SelectQueryConfig<TF> = {}) {
 		const {
 			filters,
 			excludes,
@@ -113,13 +112,12 @@ export class Table<TF extends AnyObject> {
 			count
 		);
 
-		const options: SQL = parseSelectOptions(
-			this.name,
+		const options: SQL = parseSelectOptions(this.name, {
 			filters,
 			groupBy,
 			orderBy,
-			limit
-		);
+			limit,
+		});
 
 		const response = await this.connection?.query(
 			`SELECT ${select || "*"} FROM ${this.name} ${joinSQL} ${options};`
@@ -129,7 +127,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async selectOne<Response>(
-		config: TableSelectRequestConfig<TF> = {}
+		config: SelectQueryConfig<TF> = {}
 	): Promise<Response | undefined> {
 		return (await this.select<Response>(config))[0];
 	}
@@ -144,14 +142,10 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(`DELETE FROM ${this.name} ${where};`);
 	}
 
-	public async update<Values extends AnyObject>(
+	public async update<Values extends TF>(
 		newValues: Values,
-		filters: TableFilters<TF>
+		config?: QueryConfig<TF>
 	) {
-		if (isEmpty(filters)) {
-			throw new ParamsError("select", ["filters"], "filters must not be empty");
-		}
-
 		if (isEmpty(newValues)) {
 			throw new ParamsError(
 				"select",
@@ -161,9 +155,15 @@ export class Table<TF extends AnyObject> {
 		}
 
 		const update: SQL = parseSetParams(newValues);
-		const where: SQL = parseWhere(this.name, filters);
 
-		await this.connection?.query(`UPDATE ${this.name} SET ${update} ${where};`);
+		let options = "";
+		if (config) {
+			options = parseSelectOptions(this.name, config);
+		}
+
+		await this.connection?.query(
+			`UPDATE ${this.name} SET ${update} ${options};`
+		);
 	}
 
 	public async truncate() {

@@ -1,14 +1,18 @@
 import { AnyObject, Expressions, MappedObject } from ".";
 
-export interface TableSelectRequestConfig<TF extends AnyObject> {
+export interface QueryConfig<TF extends AnyObject> {
 	readonly filters?: TableFilters<TF> | TableFilters<TF>[];
-	readonly joinedTable?: JoinTable;
+	readonly orderBy?: OrderBy<TF>;
 	readonly limit?: Limit;
+	readonly groupBy?: GroupBy<TF>;
+}
+
+export interface SelectQueryConfig<TF extends AnyObject>
+	extends QueryConfig<TF> {
+	readonly joinedTable?: JoinTable;
 	readonly excludes?: ExcludeFields<TF>;
 	readonly includes?: IncludeFields<TF>;
-	readonly orderBy?: OrderBy<TF>;
 	readonly count?: Count<TF> | MappedObject<Count<AnyObject>>;
-	readonly groupBy?: GroupBy<TF>;
 }
 
 export type TableFilters<TF extends AnyObject> = {
