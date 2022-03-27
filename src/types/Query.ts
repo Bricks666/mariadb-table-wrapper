@@ -17,8 +17,12 @@ export type TableFilters<TF extends AnyObject> = {
 
 export interface JoinTable {
 	readonly enable: boolean;
-	readonly joinTable?: string[];
+	readonly joinTable?: Array<Join | string>;
 	readonly recurseInclude?: boolean;
+}
+export interface Join {
+	readonly table: string;
+	readonly invert?: boolean;
 }
 
 export interface Limit {

@@ -151,7 +151,7 @@ const start = async () => {
 		const connection = await createConnection({
 			user: "root",
 			password: "Root123",
-			initSql: ["Use Todos;"],
+			initSql: ["Use Todo;"],
 		});
 
 		await UsersTable.init(connection);
@@ -161,7 +161,10 @@ const start = async () => {
 		const rooms = await RoomsTable.select({
 			joinedTable: {
 				enable: true,
-				joinTable: [USERS_TABLE, TASKS_TABLE],
+				joinTable: [USERS_TABLE, { table: TASKS_TABLE, invert: true }],
+			},
+			includes: {
+				[ROOMS_TABLE]: ["*"],
 			},
 			count: {
 				[TASKS_TABLE]: [["todoId", "todoCount"]],

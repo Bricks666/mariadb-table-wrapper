@@ -1,21 +1,21 @@
 import { addPrefix } from "./addPrefix";
 import { isEmpty } from "./isEmpty";
 import { receiveConfigs } from "./receiveConfigs";
-import { AnyObject, ForeignKeys, Reference } from "..";
+import { AnyObject, ForeignKeys, Join, Reference } from "@/types";
 
-/*
- * Return all fields referenced by the table records
- */
 export const getJoinedFields = <T extends AnyObject>(
 	foreignKeys: ForeignKeys<T>,
-	joinedTable?: string[],
+	joinedTable?: Array<Join | string>,
 	recurseJoin = false
 ): string[] => {
 	let references = Object.values(foreignKeys);
 	if (joinedTable && !isEmpty(joinedTable)) {
+		const joinedName = joinedTable.map((join) =>
+			typeof join === "string" ? join : join.table
+		);
 		references = references
 			.filter<Reference>((ref): ref is Reference => ref !== undefined)
-			.filter((ref) => joinedTable.includes(ref.tableName));
+			.filter((ref) => joinedName.includes(ref.tableName));
 	}
 
 	const fields: string[] = [];
