@@ -5,7 +5,8 @@ import {
 	Count,
 	SQL,
 	AssociateField,
-} from "../../types/";
+	MappedObject,
+} from "@/types/";
 import { addPrefix, isArray, isEmpty, toString } from "..";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
@@ -52,8 +53,27 @@ const parseExcludes = <T extends AnyObject>(
 	);
 };
 
-const parseCount = <TF>(counts: Count<TF>) => {
-	return counts.map((count) => `count(${count[0]}) as ${count[1]}`);
+const parseCount = <TF>(
+	count: Count<TF> | MappedObject<Count<AnyObject>>,
+	tableName: string
+) => {
+	const parsedCount: SQL[] = [];
+
+	if (isArray(count)) {
+		parsedCount.push(
+			...count.map(
+				([field, name]) =>
+					`count(${addPrefix(field as string, tableName)}) as ${name}`
+			)
+		);
+	} else {
+		const countPairs = Object.entries(count);
+		countPairs.forEach(([tableName, count]) =>
+			parsedCount.push(...parseCount(count, tableName))
+		);
+	}
+
+	return parsedCount;
 };
 
 export const parseSelectedFields = <TF extends AnyObject>(
@@ -61,7 +81,7 @@ export const parseSelectedFields = <TF extends AnyObject>(
 	tableFields: string[],
 	excludes?: ExcludeFields<TF>,
 	includes?: IncludeFields<TF>,
-	count?: Count<TF>
+	count?: Count<TF> | MappedObject<Count<AnyObject>>
 ) => {
 	const select: SQL[] = [];
 
@@ -74,7 +94,7 @@ export const parseSelectedFields = <TF extends AnyObject>(
 	}
 
 	if (count && !isEmpty(count)) {
-		select.push(...parseCount(count));
+		select.push(...parseCount(count, tableName));
 	}
 
 	return toString(select) || "*";

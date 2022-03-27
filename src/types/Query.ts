@@ -7,7 +7,7 @@ export interface TableSelectRequestConfig<TF extends AnyObject> {
 	readonly excludes?: ExcludeFields<TF>;
 	readonly includes?: IncludeFields<TF>;
 	readonly orderBy?: OrderBy<TF>;
-	readonly count?: Count<TF>;
+	readonly count?: Count<TF> | MappedObject<Count<AnyObject>>;
 	readonly groupBy?: GroupBy<TF>;
 }
 

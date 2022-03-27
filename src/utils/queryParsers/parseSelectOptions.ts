@@ -1,11 +1,4 @@
-import {
-	isEmpty,
-	undefinedToNull,
-	toString,
-	isArray,
-	addPrefix,
-	parseWhere,
-} from "..";
+import { isEmpty, undefinedToNull, toString, isArray, addPrefix } from "..";
 import {
 	AnyObject,
 	GroupBy,
@@ -14,7 +7,8 @@ import {
 	OrderDirection,
 	SQL,
 	TableFilters,
-} from "../../types";
+} from "@/types";
+import { parseWhere } from "./parseWhere";
 
 const parseLimit = ({ page, countOnPage }: Limit): SQL => {
 	const start = (page - 1) * countOnPage;

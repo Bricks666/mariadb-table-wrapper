@@ -1,6 +1,8 @@
+import { ValidSQLType } from "@/types";
+
 export const addPrefix = (
-	value: string,
-	prefix: string,
+	value: ValidSQLType,
+	prefix: ValidSQLType
 ): string => {
 	return `${prefix}.${value}`;
 };

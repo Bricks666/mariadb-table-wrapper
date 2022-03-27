@@ -1,4 +1,5 @@
 import { Connection } from "mariadb";
+import { ParamsError } from "@/lib/Error";
 import {
 	TableConfig,
 	SQL,
@@ -7,7 +8,7 @@ import {
 	TableSelectRequestConfig,
 	Fields,
 	ForeignKeys,
-} from "../types";
+} from "@/types";
 import {
 	accumulateConfigs,
 	addPrefix,
@@ -15,18 +16,17 @@ import {
 	isArray,
 	isEmpty,
 	parseCreateTable,
-	parseSQLKeys,
-	parseSetParams,
-	parseWhere,
 	undefinedToNull,
-} from "../utils";
+} from "@/utils";
 import {
 	parseValues,
 	parseSelectedFields,
 	parseSelectOptions,
 	parseJoinTables,
-} from "../utils/queryParsers";
-import { ParamsError } from "./Error";
+	parseSQLKeys,
+	parseSetParams,
+	parseWhere,
+} from "@/utils/queryParsers";
 
 export class Table<TF extends AnyObject> {
 	private connection: Connection | null;

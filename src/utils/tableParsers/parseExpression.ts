@@ -10,7 +10,7 @@ export const parseExpression = <T extends ValidSQLType>(
 	const SQLOperator = operator.toUpperCase();
 	let condition = `${field} `;
 	const SQLnot = not ? "NOT" : "";
-
+	debugger;
 	/* Нужны наглядные приведения, потому что TS, он не считывает адекватно тип после abort, даже при гуарде */
 	switch (operator) {
 		case "between": {

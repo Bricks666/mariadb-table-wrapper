@@ -1,9 +1,7 @@
 {
-
 	"compileOnSave": true, //Будет компилировать при каждом сохранении ts
 	"compilerOptions": {
 		/* Projects */
-		"outDir": "./dist",
 		"rootDir": "./src/", //Путь к файлам проекта
 		"baseUrl": "src", //Базовый адрес
 		"paths": {

@@ -1,6 +1,7 @@
-import { parseExpressions, parseFieldType } from ".";
+import { parseExpressions } from ".";
 import { FieldConfig, SQL, ValidSQLType } from "@/types";
-import { parseSQLValues } from "..";
+import { parseSQLValues } from "../queryParsers";
+import { parseFieldType } from "./parseFieldType";
 
 export const parseField = <TF extends ValidSQLType>([fieldName, fieldConfig]: [
 	string,

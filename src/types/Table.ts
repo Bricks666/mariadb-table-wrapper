@@ -83,6 +83,8 @@ export interface Expression<T extends ValidSQLType> {
 	readonly template?: string;
 }
 
+export type ArithmeticOperators = "+" | "-" | "*" | "/";
+
 export type Operators =
 	| "="
 	| "<"

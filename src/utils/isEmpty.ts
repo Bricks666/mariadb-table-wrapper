@@ -1,4 +1,5 @@
-import { isArray, isObject } from ".";
+import { isArray } from "./isArray";
+import { isObject } from "./isObject";
 
 export const isEmpty = (value: unknown): boolean => {
 	if (typeof value === "undefined") {
