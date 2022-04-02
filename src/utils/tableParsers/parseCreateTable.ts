@@ -10,7 +10,6 @@ export const parseCreateTable = <TF extends MappedObject<string>>(
 	safeCreating: boolean,
 	foreignKeys?: ForeignKeys<TF>
 ): SQL => {
-	debugger;
 	const fieldPairs = Object.entries(fields);
 	const parsedFields: SQL = toString(fieldPairs.map(parseField));
 
@@ -21,11 +20,16 @@ export const parseCreateTable = <TF extends MappedObject<string>>(
 				.filter(
 					(pair): pair is [string, Reference] => typeof pair[1] !== "undefined"
 				)
-				.map(parseForeignKey)
+				.map((pair) => parseForeignKey(tableName, pair))
 		);
 	}
 
-	const primaryKey = parsePrimaryKeys(fields);
+	const primaryKey = parsePrimaryKeys(
+		tableName,
+		Object.values(fields)
+			.filter(([, config]) => config.isPrimaryKey)
+			.map(([name]) => name)
+	);
 
 	return `CREATE TABLE ${
 		safeCreating ? "IF NOT EXISTS" : ""

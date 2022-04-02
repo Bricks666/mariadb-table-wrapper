@@ -1,12 +1,10 @@
 import { toString } from "..";
-import { Fields, MappedObject, SQL } from "../../types";
+import { SQL } from "@/types";
 
-export const parsePrimaryKeys = <TF extends MappedObject<string>>(
-	fields: Fields<TF>
+export const parsePrimaryKeys = (
+	tableName: string,
+	primaryKeys: string[]
 ): SQL => {
-	const primaryKeyNames: SQL[] = Object.entries(fields)
-		.filter(([, config]) => config.isPrimaryKey)
-		.map(([name]) => name);
-	const keys = toString(primaryKeyNames);
-	return keys && `PRIMARY KEY(${keys})`;
+	const keys = toString(primaryKeys);
+	return keys && ` CONSTRAINT ${tableName}_pk PRIMARY KEY(${keys})`;
 };

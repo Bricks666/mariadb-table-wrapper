@@ -1,4 +1,5 @@
 import { AnyObject, Expressions, MappedObject } from ".";
+import { FieldConfig, Reference, ValidSQLType } from "./Table";
 
 export interface QueryConfig<TF extends AnyObject> {
 	readonly filters?: TableFilters<TF> | TableFilters<TF>[];
@@ -13,6 +14,7 @@ export interface SelectQueryConfig<TF extends AnyObject>
 	readonly excludes?: ExcludeFields<TF>;
 	readonly includes?: IncludeFields<TF>;
 	readonly count?: Count<TF> | MappedObject<Count<AnyObject>>;
+	readonly distinct?: boolean;
 }
 
 export type TableFilters<TF extends AnyObject> = {
@@ -57,3 +59,60 @@ export type GroupBy<TF extends AnyObject> =
 	| MappedObject<string[]>;
 
 export type Count<TF extends AnyObject> = Array<AssociateField<TF, "*">>;
+
+export type AlterTableRequest<T extends ValidSQLType, TF extends AnyObject> =
+	| AddColumn<T>
+	| DropColumn<TF>
+	| ModifyColumn<TF, T>
+	| AlterColumn<TF, T>
+	| AddForeignKey<TF>
+	| DropForeignKey<TF>
+	| AddPrimaryKey<TF>
+	| DropPrimaryKey;
+
+export type AlterFieldConfig<T extends ValidSQLType> = Omit<
+	FieldConfig<T>,
+	"isPrimaryKey"
+>;
+
+export interface AddColumn<T extends ValidSQLType> {
+	readonly type: "ADD COLUMN";
+	readonly fieldName: string;
+	readonly field: AlterFieldConfig<T>;
+}
+
+export interface DropColumn<TF extends AnyObject> {
+	readonly type: "DROP COLUMN";
+	readonly column: keyof TF;
+}
+
+export interface ModifyColumn<TF extends AnyObject, T extends ValidSQLType> {
+	readonly type: "MODIFY COLUMN";
+	readonly fieldName: keyof TF;
+	readonly field: AlterFieldConfig<T>;
+}
+
+export interface AlterColumn<TF extends AnyObject, T extends ValidSQLType> {
+	readonly type: "ALTER COLUMN";
+	readonly name: keyof TF;
+	readonly default: T;
+}
+
+export interface AddForeignKey<TF extends AnyObject> {
+	readonly type: "ADD FOREIGN KEY";
+	readonly fieldName: keyof TF;
+	readonly reference: Reference;
+}
+
+export interface DropForeignKey<TF extends AnyObject> {
+	readonly type: "DROP FOREIGN KEY";
+	readonly fieldName: keyof TF;
+}
+
+export interface AddPrimaryKey<TF extends AnyObject> {
+	readonly type: "ADD PRIMARY KEY";
+	readonly fieldNames: keyof TF[];
+}
+export interface DropPrimaryKey {
+	readonly type: "DROP PRIMARY KEY";
+}

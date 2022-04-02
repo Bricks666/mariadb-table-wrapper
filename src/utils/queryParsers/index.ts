@@ -5,3 +5,4 @@ export { parseSetParams } from "./parseSetParams";
 export { parseValues } from "./parseValues";
 export { parseSelectedFields } from "./parseSelectedFields";
 export { parseQueryOptions } from "./parseQueryOptions";
+export { parseAlter } from "./parseAlter";

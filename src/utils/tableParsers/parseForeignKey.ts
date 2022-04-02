@@ -1,9 +1,18 @@
-import { Reference, SQL } from "../../types";
+import { Reference, SQL } from "@/types";
+import { parseConstraint } from "../parseConstraint";
 
-export const parseForeignKey = ([fieldName, reference]: [
-	string,
-	Reference
-]): SQL => {
-	const validKey: SQL = `FOREIGN KEY (${fieldName}) REFERENCES ${reference.tableName} (${reference.field}) ON DELETE CASCADE ON UPDATE CASCADE`;
+export const parseForeignKey = (
+	tableName: string,
+	[fieldName, reference]: [string, Reference]
+): SQL => {
+	const validKey: SQL = `${parseConstraint(
+		tableName,
+		fieldName,
+		"fk"
+	)} FOREIGN KEY (${fieldName}) REFERENCES ${reference.tableName} (${
+		reference.field
+	}) ON DELETE ${reference.onDelete || "CASCADE"} ON UPDATE ${
+		reference.onUpdate || "CASCADE"
+	}`;
 	return validKey;
 };

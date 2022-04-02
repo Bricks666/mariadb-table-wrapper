@@ -8,6 +8,8 @@ import {
 	Fields,
 	ForeignKeys,
 	QueryConfig,
+	AlterTableRequest,
+	ValidSQLType,
 } from "@/types";
 import {
 	accumulateConfigs,
@@ -25,6 +27,7 @@ import {
 	parseJoinTables,
 	parseSQLKeys,
 	parseSetParams,
+	parseAlter,
 } from "@/utils/queryParsers";
 
 export class Table<TF extends AnyObject> {
@@ -66,10 +69,12 @@ export class Table<TF extends AnyObject> {
 		const paramsArray = isArray(params) ? params : [params];
 		const values: SQL = parseValues(paramsArray.map(undefinedToNull));
 
-		await this.connection?.query(`INSERT ${this.name}(${fields}) ${values};`);
+		await this.request("INSERT", this.name, `(${fields})`, values);
 	}
 
-	public async select<Response = TF>(config: SelectQueryConfig<TF> = {}) {
+	public async select<Response = TF>(
+		config: SelectQueryConfig<TF> = {}
+	): Promise<Response[]> {
 		const {
 			filters,
 			excludes,
@@ -78,6 +83,7 @@ export class Table<TF extends AnyObject> {
 			joinedTable,
 			groupBy,
 			count,
+			distinct,
 			limit = { page: 1, countOnPage: 100 },
 		} = config;
 		/* TODO:  Добавить проверки входных параметров */
@@ -117,17 +123,26 @@ export class Table<TF extends AnyObject> {
 			limit,
 		});
 
-		const response = await this.connection?.query(
-			`SELECT ${select || "*"} FROM ${this.name} ${joinSQL} ${options};`
+		return await this.request(
+			"SELECT",
+			distinct ? "DISTINCT" : "",
+			select || "*",
+			"FROM",
+			this.name,
+			joinSQL,
+			options
 		);
-
-		return Array.from<Response>(response);
 	}
 
 	public async selectOne<Response>(
 		config: SelectQueryConfig<TF> = {}
 	): Promise<Response | undefined> {
-		return (await this.select<Response>(config))[0];
+		return (
+			await this.select<Response>({
+				...config,
+				limit: { page: 1, ...config.limit, countOnPage: 1 },
+			})
+		)[0];
 	}
 
 	public async delete(config?: QueryConfig<TF>) {
@@ -136,7 +151,7 @@ export class Table<TF extends AnyObject> {
 			options = parseQueryOptions(this.name, config);
 		}
 
-		await this.connection?.query(`DELETE FROM ${this.name} ${options};`);
+		await this.request("DELETE FROM", this.name, options);
 	}
 
 	public async update<Values extends TF>(
@@ -158,20 +173,32 @@ export class Table<TF extends AnyObject> {
 			options = parseQueryOptions(this.name, config);
 		}
 
-		await this.connection?.query(
-			`UPDATE ${this.name} SET ${update} ${options};`
-		);
+		await this.request("UPDATE", this.name, "SET", update, options);
 	}
 
 	public async truncate() {
-		await this.connection?.query(`TRUNCATE TABLE ${this.name};`);
+		await this.request("TRUNCATE TABLE", this.name);
 	}
 
 	public async drop() {
-		await this.connection?.query(`DROP TABLE ${this.name};`);
+		await this.request("DROP TABLE", this.name);
 	}
 
 	public async describe() {
-		return Array.from(await this.connection?.query(`DESC ${this.name};`));
+		return await this.request("DESC", this.name);
+	}
+
+	public async alter<T extends ValidSQLType = ValidSQLType>(
+		params: AlterTableRequest<T, TF>
+	) {
+		return await this.request(
+			"ALTER TABLE",
+			this.name,
+			parseAlter(this.name, params)
+		);
+	}
+
+	private async request<R = any>(...options: string[]): Promise<R[]> {
+		return Array.from(await this.connection?.query(`${options.join(" ")};`));
 	}
 }
