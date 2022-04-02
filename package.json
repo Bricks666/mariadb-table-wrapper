@@ -1,6 +1,6 @@
 {
 	"name": "mariadb-table-wrapper",
-	"version": "1.7.0-0",
+	"version": "1.7.0",
 	"description": "wrapper over standard mariadb library",
 	"main": "./dist/index.js",
 	"module": "./dist/index.es.js",
@@ -34,7 +34,7 @@
 		"build:prod": "rollup -c ./configs/rollup.prod.js",
 		"build:dev": "rollup -c ./configs/rollup.dev.js",
 		"lint": "eslint --ext .ts -c ./configs/.eslintrc.json ./src",
-		"pub": "npm run lint && npm run build && npm publish",
+		"pub": "npm run lint && npm run build:prod && npm publish",
 		"dev": "nodemon ./dev/index.js",
 		"version:patch": "npm version patch --no-git-tag-version",
 		"version:minor": "npm version minor --no-git-tag-version",

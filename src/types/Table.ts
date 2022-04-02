@@ -70,8 +70,8 @@ export type ForeignKeys<TF extends AnyObject> = {
 export interface Reference {
 	readonly tableName: string;
 	readonly field: string;
-	readonly onUpdate: ChangeType;
-	readonly onDelete: ChangeType;
+	readonly onUpdate?: ChangeType;
+	readonly onDelete?: ChangeType;
 }
 export type ChangeType =
 	| "CASCADE"

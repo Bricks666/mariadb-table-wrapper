@@ -26,7 +26,6 @@ const config: TableConfig<T> = {
 
 const start = async () => {
 	const table = new Table(config);
-	debugger;
 	const connection = await createConnection({
 		user: "root",
 		password: "Root123",

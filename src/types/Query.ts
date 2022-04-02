@@ -1,15 +1,15 @@
 import { AnyObject, Expressions, MappedObject } from ".";
 import { FieldConfig, Reference, ValidSQLType } from "./Table";
 
-export interface QueryConfig<TF extends AnyObject> {
+export interface Config<TF extends AnyObject> {
 	readonly filters?: TableFilters<TF> | TableFilters<TF>[];
 	readonly orderBy?: OrderBy<TF>;
 	readonly limit?: Limit;
 	readonly groupBy?: GroupBy<TF>;
 }
 
-export interface SelectQueryConfig<TF extends AnyObject>
-	extends QueryConfig<TF> {
+export interface SelectConfig<TF extends AnyObject>
+	extends Config<TF> {
 	readonly joinedTable?: JoinTable;
 	readonly excludes?: ExcludeFields<TF>;
 	readonly includes?: IncludeFields<TF>;

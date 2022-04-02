@@ -4,10 +4,10 @@ import {
 	TableConfig,
 	SQL,
 	AnyObject,
-	SelectQueryConfig,
+	SelectConfig,
 	Fields,
 	ForeignKeys,
-	QueryConfig,
+	Config,
 	AlterTableRequest,
 	ValidSQLType,
 } from "@/types";
@@ -73,7 +73,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async select<Response = TF>(
-		config: SelectQueryConfig<TF> = {}
+		config: SelectConfig<TF> = {}
 	): Promise<Response[]> {
 		const {
 			filters,
@@ -135,7 +135,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async selectOne<Response>(
-		config: SelectQueryConfig<TF> = {}
+		config: SelectConfig<TF> = {}
 	): Promise<Response | undefined> {
 		return (
 			await this.select<Response>({
@@ -145,7 +145,7 @@ export class Table<TF extends AnyObject> {
 		)[0];
 	}
 
-	public async delete(config?: QueryConfig<TF>) {
+	public async delete(config?: Config<TF>) {
 		let options = "";
 		if (config) {
 			options = parseQueryOptions(this.name, config);
@@ -156,7 +156,7 @@ export class Table<TF extends AnyObject> {
 
 	public async update<Values extends TF>(
 		newValues: Values,
-		config?: QueryConfig<TF>
+		config?: Config<TF>
 	) {
 		if (isEmpty(newValues)) {
 			throw new ParamsError(
@@ -198,7 +198,7 @@ export class Table<TF extends AnyObject> {
 		);
 	}
 
-	private async request<R = any>(...options: string[]): Promise<R[]> {
+	private async request<R = unknown>(...options: string[]): Promise<R[]> {
 		return Array.from(await this.connection?.query(`${options.join(" ")};`));
 	}
 }
