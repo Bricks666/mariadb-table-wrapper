@@ -36,6 +36,5 @@ const parseFilter = <T extends AnyObject>(
 			filter[key] as Expressions<ValidSQLType>
 		)
 	);
-	const SQLfilter: SQL = toString(conditions, " AND ");
-	return SQLfilter;
+	return toString(conditions, " AND ");
 };

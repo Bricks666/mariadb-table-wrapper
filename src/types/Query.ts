@@ -17,7 +17,7 @@ export interface SelectQueryConfig<TF extends AnyObject>
 
 export type TableFilters<TF extends AnyObject> = {
 	readonly [key in keyof TF]?: Expressions<TF[key]>;
-};
+} & { readonly exists?: boolean };
 
 export interface JoinTable {
 	readonly enable: boolean;

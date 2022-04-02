@@ -3,7 +3,6 @@ import { ParamsError } from "@/lib/Error";
 import {
 	TableConfig,
 	SQL,
-	TableFilters,
 	AnyObject,
 	SelectQueryConfig,
 	Fields,
@@ -22,11 +21,10 @@ import {
 import {
 	parseValues,
 	parseSelectedFields,
-	parseSelectOptions,
+	parseQueryOptions,
 	parseJoinTables,
 	parseSQLKeys,
 	parseSetParams,
-	parseWhere,
 } from "@/utils/queryParsers";
 
 export class Table<TF extends AnyObject> {
@@ -112,7 +110,7 @@ export class Table<TF extends AnyObject> {
 			count
 		);
 
-		const options: SQL = parseSelectOptions(this.name, {
+		const options: SQL = parseQueryOptions(this.name, {
 			filters,
 			groupBy,
 			orderBy,
@@ -132,14 +130,13 @@ export class Table<TF extends AnyObject> {
 		return (await this.select<Response>(config))[0];
 	}
 
-	public async delete(filters: TableFilters<TF>) {
-		if (isEmpty(filters)) {
-			throw new ParamsError("select", ["filters"], "filters must not be empty");
+	public async delete(config?: QueryConfig<TF>) {
+		let options = "";
+		if (config) {
+			options = parseQueryOptions(this.name, config);
 		}
 
-		const where: SQL = parseWhere(this.name, filters);
-
-		await this.connection?.query(`DELETE FROM ${this.name} ${where};`);
+		await this.connection?.query(`DELETE FROM ${this.name} ${options};`);
 	}
 
 	public async update<Values extends TF>(
@@ -158,7 +155,7 @@ export class Table<TF extends AnyObject> {
 
 		let options = "";
 		if (config) {
-			options = parseSelectOptions(this.name, config);
+			options = parseQueryOptions(this.name, config);
 		}
 
 		await this.connection?.query(
@@ -174,9 +171,6 @@ export class Table<TF extends AnyObject> {
 		await this.connection?.query(`DROP TABLE ${this.name};`);
 	}
 
-	public async deleteAll() {
-		await this.connection?.query(`DELETE FROM ${this.name};`);
-	}
 	public async describe() {
 		return Array.from(await this.connection?.query(`DESC ${this.name};`));
 	}

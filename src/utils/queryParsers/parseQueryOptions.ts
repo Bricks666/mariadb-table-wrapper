@@ -7,7 +7,6 @@ import {
 	OrderDirection,
 	QueryConfig,
 	SQL,
-	TableFilters,
 } from "@/types";
 import { parseWhere } from "./parseWhere";
 
@@ -45,7 +44,7 @@ const parseGroupBy = <TF extends AnyObject>(
 	return `GROUP BY ${toString(grouping)}`;
 };
 
-export const parseSelectOptions = <TF extends AnyObject>(
+export const parseQueryOptions = <TF extends AnyObject>(
 	tableName: string,
 	{ filters, groupBy, orderBy, limit }: Partial<QueryConfig<TF>>
 ): SQL => {
