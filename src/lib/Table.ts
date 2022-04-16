@@ -4,12 +4,13 @@ import {
 	TableConfig,
 	SQL,
 	AnyObject,
-	SelectConfig,
+	SelectQuery,
 	Fields,
 	ForeignKeys,
-	Config,
+	Query,
 	AlterTableRequest,
 	ValidSQLType,
+	Description,
 } from "@/types";
 import {
 	accumulateConfigs,
@@ -73,7 +74,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async select<Response = TF>(
-		config: SelectConfig<TF> = {}
+		config: SelectQuery<TF> = {}
 	): Promise<Response[]> {
 		const {
 			filters,
@@ -135,7 +136,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async selectOne<Response>(
-		config: SelectConfig<TF> = {}
+		config: SelectQuery<TF> = {}
 	): Promise<Response | undefined> {
 		return (
 			await this.select<Response>({
@@ -145,7 +146,7 @@ export class Table<TF extends AnyObject> {
 		)[0];
 	}
 
-	public async delete(config?: Config<TF>) {
+	public async delete(config?: Query<TF>) {
 		let options = "";
 		if (config) {
 			options = parseQueryOptions(this.name, config);
@@ -156,7 +157,7 @@ export class Table<TF extends AnyObject> {
 
 	public async update<Values extends TF>(
 		newValues: Values,
-		config?: Config<TF>
+		config?: Query<TF>
 	) {
 		if (isEmpty(newValues)) {
 			throw new ParamsError(
@@ -185,7 +186,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async describe() {
-		return await this.request("DESC", this.name);
+		return await this.request<Description<TF>[]>("DESC", this.name);
 	}
 
 	public async alter<T extends ValidSQLType = ValidSQLType>(

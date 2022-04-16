@@ -15,7 +15,7 @@ const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 
 const parseIncludes = <T extends AnyObject>(
 	tableName: string,
-	includes: IncludeFields<T>
+	includes: IncludeFields<T> | MappedObject<IncludeFields<AnyObject>>
 ): SQL[] => {
 	if (isArray(includes)) {
 		return includes.map((el) => {
@@ -35,7 +35,7 @@ const parseExclude = (excludes: string[], table: string): string[] => {
 const parseExcludes = <T extends AnyObject>(
 	tableName: string,
 	tableFields: string[],
-	excludes: ExcludeFields<T>
+	excludes: ExcludeFields<T> | MappedObject<ExcludeFields<AnyObject>>
 ): SQL[] => {
 	let excludesFields: string[] = [];
 
@@ -79,8 +79,8 @@ const parseCount = <TF>(
 export const parseSelectedFields = <TF extends AnyObject>(
 	tableName: string,
 	tableFields: string[],
-	excludes?: ExcludeFields<TF>,
-	includes?: IncludeFields<TF>,
+	excludes?: ExcludeFields<TF> | MappedObject<ExcludeFields<AnyObject>>,
+	includes?: IncludeFields<TF> | MappedObject<IncludeFields<AnyObject>>,
 	count?: Count<TF> | MappedObject<Count<AnyObject>>
 ) => {
 	const select: SQL[] = [];

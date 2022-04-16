@@ -3,9 +3,10 @@ import {
 	AnyObject,
 	GroupBy,
 	Limit,
+	MappedObject,
 	OrderBy,
 	OrderDirection,
-	Config,
+	Query,
 	SQL,
 } from "@/types";
 import { parseWhere } from "./parseWhere";
@@ -15,7 +16,9 @@ const parseLimit = ({ page, countOnPage }: Limit): SQL => {
 	return `LIMIT ${start},${countOnPage}`;
 };
 
-const parseOrdering = <T extends AnyObject>(orderBy: OrderBy<T>) => {
+const parseOrdering = <T extends AnyObject>(
+	orderBy: OrderBy<T> /* | MappedObject<OrderBy<AnyObject>> */
+) => {
 	const fieldAndDirection = Object.entries(orderBy);
 	const orderingConditions: string[] = fieldAndDirection.map((pair) =>
 		toString(pair as [string, OrderDirection], " ")
@@ -26,7 +29,7 @@ const parseOrdering = <T extends AnyObject>(orderBy: OrderBy<T>) => {
 
 const parseGroupBy = <TF extends AnyObject>(
 	tableName: string,
-	groupBy: GroupBy<TF>
+	groupBy: GroupBy<TF> | MappedObject<GroupBy<AnyObject>>
 ): string => {
 	const grouping: string[] = [];
 
@@ -46,7 +49,7 @@ const parseGroupBy = <TF extends AnyObject>(
 
 export const parseQueryOptions = <TF extends AnyObject>(
 	tableName: string,
-	{ filters, groupBy, orderBy, limit }: Partial<Config<TF>>
+	{ filters, groupBy, orderBy, limit }: Partial<Query<TF>>
 ): SQL => {
 	let where: SQL = "";
 	let group: SQL = "";

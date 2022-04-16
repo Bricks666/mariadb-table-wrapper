@@ -1,25 +1,28 @@
 import { AnyObject, Expressions, MappedObject } from ".";
 import { FieldConfig, Reference, ValidSQLType } from "./Table";
 
-export interface Config<TF extends AnyObject> {
+export interface Query<TF extends AnyObject> {
 	readonly filters?: TableFilters<TF> | TableFilters<TF>[];
-	readonly orderBy?: OrderBy<TF>;
+	readonly orderBy?: OrderBy<TF> /* | MappedObject<OrderBy<AnyObject>> */;
 	readonly limit?: Limit;
-	readonly groupBy?: GroupBy<TF>;
+	readonly groupBy?: GroupBy<TF> | MappedObject<GroupBy<AnyObject>>;
 }
 
-export interface SelectConfig<TF extends AnyObject>
-	extends Config<TF> {
+export interface SelectQuery<TF extends AnyObject> extends Query<TF> {
 	readonly joinedTable?: JoinTable;
-	readonly excludes?: ExcludeFields<TF>;
-	readonly includes?: IncludeFields<TF>;
+	readonly excludes?:
+		| ExcludeFields<TF>
+		| MappedObject<ExcludeFields<AnyObject>>;
+	readonly includes?:
+		| IncludeFields<TF>
+		| MappedObject<IncludeFields<AnyObject>>;
 	readonly count?: Count<TF> | MappedObject<Count<AnyObject>>;
 	readonly distinct?: boolean;
 }
 
 export type TableFilters<TF extends AnyObject> = {
 	readonly [key in keyof TF]?: Expressions<TF[key]>;
-} & { readonly exists?: boolean };
+};
 
 export interface JoinTable {
 	readonly enable: boolean;
@@ -35,13 +38,11 @@ export interface Limit {
 	readonly page: number;
 	readonly countOnPage: number;
 }
-export type ExcludeFields<TF extends AnyObject> =
-	| Array<keyof TF>
-	| MappedObject<string[]>;
+export type ExcludeFields<TF extends AnyObject> = Array<keyof TF>;
 
-export type IncludeFields<TF extends AnyObject> =
-	| Array<AssociateField<TF> | keyof TF>
-	| MappedObject<Array<AssociateField<AnyObject> | string>>;
+export type IncludeFields<TF extends AnyObject> = Array<
+	AssociateField<TF> | keyof TF
+>;
 
 export type AssociateField<TF extends AnyObject, AdditionKeys = never> = [
 	keyof TF | AdditionKeys,
@@ -54,9 +55,7 @@ export type OrderBy<TF extends AnyObject> = {
 
 export type OrderDirection = "DESC" | "ASC";
 
-export type GroupBy<TF extends AnyObject> =
-	| Array<keyof TF>
-	| MappedObject<string[]>;
+export type GroupBy<TF extends AnyObject> = Array<keyof TF>;
 
 export type Count<TF extends AnyObject> = Array<AssociateField<TF, "*">>;
 
@@ -72,7 +71,7 @@ export type AlterTableRequest<T extends ValidSQLType, TF extends AnyObject> =
 
 export type AlterFieldConfig<T extends ValidSQLType> = Omit<
 	FieldConfig<T>,
-	"isPrimaryKey"
+	"isPrimaryKey" | "default"
 >;
 
 export interface AddColumn<T extends ValidSQLType> {
@@ -83,7 +82,7 @@ export interface AddColumn<T extends ValidSQLType> {
 
 export interface DropColumn<TF extends AnyObject> {
 	readonly type: "DROP COLUMN";
-	readonly column: keyof TF;
+	readonly fieldName: keyof TF;
 }
 
 export interface ModifyColumn<TF extends AnyObject, T extends ValidSQLType> {
@@ -94,7 +93,7 @@ export interface ModifyColumn<TF extends AnyObject, T extends ValidSQLType> {
 
 export interface AlterColumn<TF extends AnyObject, T extends ValidSQLType> {
 	readonly type: "ALTER COLUMN";
-	readonly name: keyof TF;
+	readonly fieldName: keyof TF;
 	readonly default: T;
 }
 
@@ -115,4 +114,13 @@ export interface AddPrimaryKey<TF extends AnyObject> {
 }
 export interface DropPrimaryKey {
 	readonly type: "DROP PRIMARY KEY";
+}
+
+export interface Description<TF extends AnyObject> {
+	readonly Field: keyof TF;
+	readonly Type: string;
+	readonly Null: "YES" | "NO";
+	readonly Key: "PRI" | "";
+	readonly Default: ValidSQLType | null;
+	readonly Extra: string;
 }
