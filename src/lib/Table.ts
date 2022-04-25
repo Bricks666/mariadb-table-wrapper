@@ -18,7 +18,6 @@ import {
 	getJoinedFields,
 	isArray,
 	isEmpty,
-	parseCreateTable,
 	undefinedToNull,
 } from "@/utils";
 import {
@@ -29,7 +28,8 @@ import {
 	parseSQLKeys,
 	parseSetParams,
 	parseAlter,
-} from "@/utils/queryParsers";
+} from "@/parsers/queryParsers";
+import { parseCreateTable } from "@/parsers/tableParsers";
 
 export class Table<TF extends AnyObject> {
 	private connection: Connection | null;

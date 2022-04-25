@@ -1,6 +1,6 @@
 import { Expressions, Expression, SQL, ValidSQLType } from "@/types";
 import { isArray, toString } from "@/utils";
-import { parseExpression } from ".";
+import { parseExpression } from "./parseExpression";
 
 export const parseExpressions = <T extends ValidSQLType>(
 	field: string,

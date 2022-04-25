@@ -1,4 +1,4 @@
-import { receiveConfigs, toString } from "..";
+import { receiveConfigs, toString } from "../../utils";
 import { AnyObject, ForeignKeys, Join, Reference, SQL } from "@/types";
 import { ParamsError } from "@/lib";
 

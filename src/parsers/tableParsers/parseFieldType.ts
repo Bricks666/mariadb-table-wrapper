@@ -1,4 +1,4 @@
-import { isEmpty, toJSON, toString } from "..";
+import { isEmpty, toJSON, toString } from "@/utils";
 import { FieldConfig, SQLTypes, ValidSQLType } from "@/types";
 
 const stringTypes: SQLTypes[] = ["VARCHAR", "CHAR"];

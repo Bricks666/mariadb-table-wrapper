@@ -1,5 +1,5 @@
-import { parseSQLValues } from "../queryParsers";
-import { toString } from "../toString";
+import { parseSQLValues } from ".";
+import { toString } from "../../utils/toString";
 import { AnyObject, SQL } from "@/types";
 
 export const parseValues = <T extends AnyObject>(values: T[]): SQL => {

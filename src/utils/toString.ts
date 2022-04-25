@@ -1,4 +1,4 @@
-import { SQL } from "../types";
+import { SQL } from "@/types";
 
 export const toString = (
 	array: (string | number | symbol)[],

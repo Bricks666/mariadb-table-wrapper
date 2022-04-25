@@ -1,4 +1,4 @@
-import { isEmpty, undefinedToNull, toString, isArray, addPrefix } from "..";
+import { isEmpty, undefinedToNull, toString, isArray, addPrefix } from "../../utils";
 import {
 	AnyObject,
 	GroupBy,

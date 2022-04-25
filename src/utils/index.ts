@@ -5,7 +5,6 @@ export { isArray } from "./isArray";
 export { isEmpty } from "./isEmpty";
 export { isObject } from "./isObject";
 export { receiveConfigs } from "./receiveConfigs";
-export { parseCreateTable } from "./tableParsers";
 export { toJSON } from "./toJSON";
 export { toString } from "./toString";
 export { undefinedToNull } from "./undefinedToNull";

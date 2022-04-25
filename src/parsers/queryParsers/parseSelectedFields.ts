@@ -7,7 +7,7 @@ import {
 	AssociateField,
 	MappedObject,
 } from "@/types/";
-import { addPrefix, isArray, isEmpty, toString } from "..";
+import { addPrefix, isArray, isEmpty, toString } from "../../utils";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 	return toString(associate, " as ");

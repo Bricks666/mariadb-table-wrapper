@@ -1,4 +1,4 @@
-import { toJSON, toString } from "..";
+import { toJSON, toString } from "../../utils";
 import { SQL } from "../../types";
 
 export const parseSetParams = (params: object): SQL => {

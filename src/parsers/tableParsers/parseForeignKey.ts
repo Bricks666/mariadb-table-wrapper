@@ -1,5 +1,5 @@
 import { Reference, SQL } from "@/types";
-import { parseConstraint } from "../parseConstraint";
+import { parseConstraint } from "@/utils";
 
 export const parseForeignKey = (
 	tableName: string,

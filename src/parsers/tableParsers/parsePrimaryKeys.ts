@@ -1,4 +1,4 @@
-import { toString } from "..";
+import { toString } from "@/utils";
 import { SQL } from "@/types";
 
 export const parsePrimaryKeys = (

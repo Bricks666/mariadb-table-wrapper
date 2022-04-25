@@ -6,14 +6,15 @@
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/recommended",
-		"plugin:sonarjs/recommended"
+		"plugin:sonarjs/recommended",
+    "plugin:jest/recommended"
 	],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"project": "tsconfig.json",
 		"ecmaVersion": "latest"
 	},
-	"plugins": ["@typescript-eslint", "sonarjs"],
+	"plugins": ["@typescript-eslint", "sonarjs", "jest"],
 	"rules": {
 		/* STANDARD */
 		"indent": ["warn", "tab", { "SwitchCase": 1 }],
