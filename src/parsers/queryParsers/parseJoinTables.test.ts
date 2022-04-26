@@ -34,11 +34,8 @@ const CONFIG_OBJECTS: AnyObject = {
 	},
 };
 
-jest.mock("@/utils", () => ({
+jest.mock("@/utils/receiveConfigs", () => ({
 	receiveConfigs: (tableName: string) => CONFIG_OBJECTS[tableName],
-	toString: (array: unknown[], separator = ", ") => array.join(separator),
-	isArray: <T extends Array<unknown>>(param: unknown): param is T =>
-		Array.isArray(param),
 }));
 
 describe("parse Join Tables", () => {
