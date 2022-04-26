@@ -1,6 +1,13 @@
-import { isEmpty, undefinedToNull, toString, isArray, addPrefix } from "../../utils";
+import {
+	isEmpty,
+	undefinedToNull,
+	toString,
+	isArray,
+	addPrefix,
+} from "@/utils";
 import {
 	AnyObject,
+	Expressions,
 	GroupBy,
 	Limit,
 	MappedObject,
@@ -8,8 +15,41 @@ import {
 	OrderDirection,
 	Query,
 	SQL,
+	TableFilters,
+	ValidSQLType,
 } from "@/types";
-import { parseWhere } from "./parseWhere";
+import { parseExpressions } from "../tableParsers";
+
+const parseWhere = <T extends AnyObject>(
+	tableName: string,
+	filters: TableFilters<T> | TableFilters<T>[]
+): SQL => {
+	const SQLFilters: SQL[] = [];
+	if (isArray(filters)) {
+		filters.forEach((filter) => {
+			SQLFilters.push(parseFilter(tableName, filter));
+		});
+	} else {
+		SQLFilters.push(parseFilter(tableName, filters));
+	}
+
+	return `WHERE ${toString(SQLFilters, " OR ")}`;
+};
+
+const parseFilter = <T extends AnyObject>(
+	tableName: string,
+	filter: TableFilters<T>
+) => {
+	const keys = Object.keys(filter);
+
+	const conditions: SQL[] = keys.map((key) =>
+		parseExpressions(
+			addPrefix(key, tableName),
+			filter[key] as Expressions<ValidSQLType>
+		)
+	);
+	return toString(conditions, " AND ");
+};
 
 const parseLimit = ({ page, countOnPage }: Limit): SQL => {
 	const start = (page - 1) * countOnPage;
@@ -71,5 +111,5 @@ export const parseQueryOptions = <TF extends AnyObject>(
 	if (limit && !isEmpty(limit)) {
 		page = parseLimit(limit);
 	}
-	return `${where} ${group} ${order} ${page}`;
+	return toString([where, group, order, page], " ");
 };

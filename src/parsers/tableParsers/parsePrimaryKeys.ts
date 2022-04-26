@@ -1,4 +1,4 @@
-import { toString } from "@/utils";
+import { toString, parseConstraint } from "@/utils";
 import { SQL } from "@/types";
 
 export const parsePrimaryKeys = (
@@ -6,5 +6,5 @@ export const parsePrimaryKeys = (
 	primaryKeys: string[]
 ): SQL => {
 	const keys = toString(primaryKeys);
-	return keys && ` CONSTRAINT ${tableName}_pk PRIMARY KEY(${keys})`;
+	return keys && `${parseConstraint(tableName, "", "pk")} PRIMARY KEY(${keys})`;
 };

@@ -5,7 +5,7 @@ export const parseForeignKey = (
 	tableName: string,
 	[fieldName, reference]: [string, Reference]
 ): SQL => {
-	const validKey: SQL = `${parseConstraint(
+	return `${parseConstraint(
 		tableName,
 		fieldName,
 		"fk"
@@ -14,5 +14,4 @@ export const parseForeignKey = (
 	}) ON DELETE ${reference.onDelete || "CASCADE"} ON UPDATE ${
 		reference.onUpdate || "CASCADE"
 	}`;
-	return validKey;
 };

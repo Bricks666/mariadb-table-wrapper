@@ -1,53 +1,58 @@
-import { isArray } from "@/utils";
+import { isArray, toString } from "@/utils";
 import { Expression, Operators, SQL, ValidSQLType } from "@/types";
 import { ParamsError } from "@/lib";
 import { parseSQLValues } from "../queryParsers";
 
+/**
+ * TODO: Упростить функцию
+ */
 export const parseExpression = <T extends ValidSQLType>(
 	field: string,
 	{ operator, value, not, template }: Expression<T>
 ): SQL => {
 	const SQLOperator = operator.toUpperCase();
-	let condition = `${field} `;
-	const SQLnot = not ? "NOT" : "";
+	const conditionParts: SQL[] = [];
+	if (not) {
+		conditionParts.push("NOT");
+	}
 
 	/* Нужны наглядные приведения, потому что TS, он не считывает адекватно тип после abort, даже при гуарде */
 	switch (operator) {
 		case "between": {
 			abortInvalidParsing(operator, value);
-
 			value = value as T[];
-			condition += ` ${SQLnot} ${SQLOperator} ${value[0]} AND ${value[1]}`;
+			conditionParts.push(field, SQLOperator, toString(value, " AND "));
 			break;
 		}
 		case "in": {
 			abortInvalidParsing(operator, value);
 
 			value = value as T[];
-			condition += ` ${SQLnot} ${SQLOperator} (${parseSQLValues(value)})`;
+			conditionParts.push(field, SQLOperator, `(${parseSQLValues(value)})`);
 			break;
 		}
 		case "regExp":
 		case "like": {
 			abortInvalidParsing(operator, template);
-			condition += ` ${SQLnot} ${SQLOperator} ${parseSQLValues([template])}`;
+			conditionParts.push(field, SQLOperator, parseSQLValues([template]));
 			break;
 		}
 		case "is null": {
-			condition += `IS ${SQLnot} NULL`;
+			conditionParts.push(field, "IS NULL");
 			break;
 		}
 		default: {
 			abortInvalidParsing(operator, value);
-
 			value = value as T;
 			const SQlValue =
-				typeof value === "string" ? parseSQLValues([value]) : value;
-			condition += ` ${SQLOperator} ${SQlValue}`;
+				typeof value === "string"
+					? parseSQLValues([value])
+					: (value as unknown as string);
+			conditionParts.push(field, SQLOperator, SQlValue);
 			break;
 		}
 	}
-	return condition;
+	return toString(conditionParts, " ");
 };
 
 interface Validating {
@@ -75,11 +80,11 @@ const validatingMap: Partial<Record<string, Validating>> = {
 		),
 		validator: (value) => isArray(value) && value.length === 2,
 	},
-	arithmetic: {
+	logic: {
 		error: new ParamsError(
 			"createTable",
 			"parseExpression",
-			"When use arithmetic operator, value must be simple"
+			"When use logic operator, value must be simple"
 		),
 		validator: (value) => !isArray(value) && typeof value !== "undefined",
 	},
@@ -101,7 +106,7 @@ const abortInvalidParsing = (
 ) => {
 	let validating = validatingMap[operator];
 	if (!validating) {
-		validating = validatingMap["arithmetic"] as Validating;
+		validating = validatingMap["logic"] as Validating;
 	}
 
 	if (!validating.validator(value)) {

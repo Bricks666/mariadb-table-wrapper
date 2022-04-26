@@ -22,7 +22,7 @@
 		"skipLibCheck": true,
 		"declaration": true,
 		"resolveJsonModule": true,
-		"declarationMap": true
+		"declarationMap": false
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist", ".*", "*.test.*"]

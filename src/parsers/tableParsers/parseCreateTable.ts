@@ -1,18 +1,18 @@
-import { Fields, ForeignKeys, MappedObject, Reference, SQL } from "@/types";
-import { toString } from "@/utils/toString";
+import { MappedObject, Reference, SQL, TableConfig } from "@/types";
+import { toString } from "@/utils";
 import { parseField } from "./parseField";
 import { parseForeignKey } from "./parseForeignKey";
 import { parsePrimaryKeys } from "./parsePrimaryKeys";
 
-export const parseCreateTable = <TF extends MappedObject<string>>(
-	tableName: string,
-	fields: Fields<TF>,
-	safeCreating: boolean,
-	foreignKeys?: ForeignKeys<TF>
-): SQL => {
+export const parseCreateTable = <TF extends MappedObject<string>>({
+	table,
+	fields,
+	safeCreating,
+	foreignKeys,
+}: TableConfig<TF>): SQL => {
 	const fieldPairs = Object.entries(fields);
 	const parsedFields: SQL = toString(fieldPairs.map(parseField));
-
+	const exists = safeCreating ? "IF NOT EXISTS" : "";
 	let parsedForeignKeys: SQL = "";
 	if (typeof foreignKeys !== "undefined") {
 		parsedForeignKeys = toString(
@@ -20,20 +20,21 @@ export const parseCreateTable = <TF extends MappedObject<string>>(
 				.filter(
 					(pair): pair is [string, Reference] => typeof pair[1] !== "undefined"
 				)
-				.map((pair) => parseForeignKey(tableName, pair))
+				.map((pair) => parseForeignKey(table, pair))
 		);
 	}
 
 	const primaryKey = parsePrimaryKeys(
-		tableName,
-		Object.values(fields)
+		table,
+		Object.entries(fields)
 			.filter(([, config]) => config.isPrimaryKey)
 			.map(([name]) => name)
 	);
 
-	return `CREATE TABLE ${
-		safeCreating ? "IF NOT EXISTS" : ""
-	} ${tableName}(${parsedFields}${primaryKey && "," + primaryKey}${
-		parsedForeignKeys && "," + parsedForeignKeys
-	});`;
+	const tableConfig = `${table}(${toString([
+		parsedFields,
+		primaryKey,
+		parsedForeignKeys,
+	])});`;
+	return toString(["CREATE TABLE", exists, tableConfig], " ");
 };

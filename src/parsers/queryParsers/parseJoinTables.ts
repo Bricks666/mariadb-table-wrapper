@@ -1,4 +1,5 @@
-import { receiveConfigs, toString } from "../../utils";
+import { toString } from "@/utils/toString";
+import { receiveConfigs } from "@/utils/receiveConfigs";
 import { AnyObject, ForeignKeys, Join, Reference, SQL } from "@/types";
 import { ParamsError } from "@/lib";
 
@@ -13,7 +14,7 @@ const parseJoinTable = (
 		return "";
 	}
 
-	const SQLScript: SQL = `JOIN ${reference.tableName} ON  ${tableName}.${innerField} = ${reference.tableName}.${reference.field}`;
+	const SQLScript: SQL = `JOIN ${reference.tableName} ON ${tableName}.${innerField} = ${reference.tableName}.${reference.field}`;
 
 	return SQLScript;
 };

@@ -19,15 +19,16 @@ import {
 	isArray,
 	isEmpty,
 	undefinedToNull,
+	toString,
 } from "@/utils";
 import {
-	parseValues,
 	parseSelectedFields,
 	parseQueryOptions,
 	parseJoinTables,
 	parseSQLKeys,
 	parseSetParams,
 	parseAlter,
+	parseSQLValues,
 } from "@/parsers/queryParsers";
 import { parseCreateTable } from "@/parsers/tableParsers";
 
@@ -36,13 +37,13 @@ export class Table<TF extends AnyObject> {
 	private readonly name: string;
 	private readonly fields: Fields<TF>;
 	private readonly foreignKeys: ForeignKeys<TF> | undefined;
-	private readonly safeCreation: boolean;
+	private readonly safeCreating: boolean;
 
 	public constructor(config: TableConfig<TF>) {
 		this.name = config.table;
 		this.fields = config.fields;
 		this.foreignKeys = config.foreignKeys;
-		this.safeCreation = !!config.safeCreating;
+		this.safeCreating = !!config.safeCreating;
 
 		this.connection = null;
 
@@ -52,13 +53,12 @@ export class Table<TF extends AnyObject> {
 	public async init(connection: Connection) {
 		this.connection = connection;
 
-		const intiSQL: SQL = parseCreateTable(
-			this.name,
-			this.fields,
-			this.safeCreation,
-			this.foreignKeys
-		);
-
+		const intiSQL: SQL = parseCreateTable({
+			fields: this.fields,
+			foreignKeys: this.foreignKeys,
+			table: this.name,
+			safeCreating: this.safeCreating,
+		});
 		await this.connection.query(intiSQL);
 	}
 
@@ -68,9 +68,11 @@ export class Table<TF extends AnyObject> {
 		const fields: SQL = parseSQLKeys(isArray(params) ? params[0] : params);
 
 		const paramsArray = isArray(params) ? params : [params];
-		const values: SQL = parseValues(paramsArray.map(undefinedToNull));
+		const values: SQL = toString(
+			paramsArray.map((param) => parseSQLValues(undefinedToNull(param)))
+		);
 
-		await this.request("INSERT", this.name, `(${fields})`, values);
+		await this.request("INSERT", this.name, `(${fields})`, "VALUES", values);
 	}
 
 	public async select<Response = TF>(
@@ -88,7 +90,7 @@ export class Table<TF extends AnyObject> {
 			limit = { page: 1, countOnPage: 100 },
 		} = config;
 		/* TODO:  Добавить проверки входных параметров */
-		const tableFields: string[] = Object.keys(this.fields).map((field) =>
+		const fields: string[] = Object.keys(this.fields).map((field) =>
 			addPrefix(field, this.name)
 		);
 
@@ -100,7 +102,7 @@ export class Table<TF extends AnyObject> {
 				this.foreignKeys,
 				joinedTable.joinTable
 			);
-			tableFields.push(
+			fields.push(
 				...getJoinedFields(
 					this.foreignKeys,
 					joinedTable.joinTable,
@@ -109,13 +111,13 @@ export class Table<TF extends AnyObject> {
 			);
 		}
 
-		const select: SQL = parseSelectedFields(
-			this.name,
-			tableFields,
+		const select: SQL = parseSelectedFields({
+			tableName: this.name,
+			fields,
 			excludes,
 			includes,
-			count
-		);
+			count,
+		});
 
 		const options: SQL = parseQueryOptions(this.name, {
 			filters,

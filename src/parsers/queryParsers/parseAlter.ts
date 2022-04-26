@@ -1,10 +1,13 @@
 import { AlterTableRequest, AnyObject, ValidSQLType } from "@/types";
-import { parseConstraint } from "../../utils/parseConstraint";
+import { parseConstraint } from "@/utils/parseConstraint";
 import { parseField } from "../tableParsers/parseField";
 import { parseForeignKey } from "../tableParsers/parseForeignKey";
 import { parsePrimaryKeys } from "../tableParsers/parsePrimaryKeys";
 
-export const parseAlter = <T extends ValidSQLType, TF extends AnyObject>(
+export const parseAlter = <
+	T extends ValidSQLType = ValidSQLType,
+	TF extends AnyObject = AnyObject
+>(
 	tableName: string,
 	params: AlterTableRequest<T, TF>
 ) => {
@@ -19,7 +22,7 @@ export const parseAlter = <T extends ValidSQLType, TF extends AnyObject>(
 			break;
 		}
 		case "DROP COLUMN": {
-			options = `DROP COLUMN ${params.fieldName}`;
+			options = params.fieldName as string;
 			break;
 		}
 		case "MODIFY COLUMN": {

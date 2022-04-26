@@ -7,7 +7,7 @@ import {
 	AssociateField,
 	MappedObject,
 } from "@/types/";
-import { addPrefix, isArray, isEmpty, toString } from "../../utils";
+import { addPrefix, isArray, isEmpty, toString } from "@/utils";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 	return toString(associate, " as ");
@@ -34,7 +34,7 @@ const parseExclude = (excludes: string[], table: string): string[] => {
 
 const parseExcludes = <T extends AnyObject>(
 	tableName: string,
-	tableFields: string[],
+	fields: string[],
 	excludes: ExcludeFields<T> | MappedObject<ExcludeFields<AnyObject>>
 ): SQL[] => {
 	let excludesFields: string[] = [];
@@ -48,7 +48,7 @@ const parseExcludes = <T extends AnyObject>(
 		);
 	}
 
-	return Object.values(tableFields).filter(
+	return Object.values(fields).filter(
 		(filed) => !excludesFields.includes(filed)
 	);
 };
@@ -75,18 +75,25 @@ const parseCount = <TF>(
 
 	return parsedCount;
 };
+interface SelectedFieldsParams<TF extends AnyObject> {
+	tableName: string;
+	fields: string[];
+	excludes?: ExcludeFields<TF> | MappedObject<ExcludeFields<AnyObject>>;
+	includes?: IncludeFields<TF> | MappedObject<IncludeFields<AnyObject>>;
+	count?: Count<TF> | MappedObject<Count<AnyObject>>;
+}
 
-export const parseSelectedFields = <TF extends AnyObject>(
-	tableName: string,
-	tableFields: string[],
-	excludes?: ExcludeFields<TF> | MappedObject<ExcludeFields<AnyObject>>,
-	includes?: IncludeFields<TF> | MappedObject<IncludeFields<AnyObject>>,
-	count?: Count<TF> | MappedObject<Count<AnyObject>>
-) => {
+export const parseSelectedFields = <TF extends AnyObject>({
+	tableName,
+	fields,
+	excludes,
+	includes,
+	count,
+}: SelectedFieldsParams<TF>) => {
 	const select: SQL[] = [];
 
 	if (excludes && !isEmpty(excludes)) {
-		select.push(...parseExcludes(tableName, tableFields, excludes));
+		select.push(...parseExcludes(tableName, fields, excludes));
 	}
 
 	if (includes && !isEmpty(includes)) {

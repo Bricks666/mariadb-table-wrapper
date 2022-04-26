@@ -1,4 +1,4 @@
-import { parseExpressions } from ".";
+import { parseExpressions } from "./parseExpressions";
 import { FieldConfig, SQL, ValidSQLType } from "@/types";
 import { parseSQLValues } from "../queryParsers";
 import { parseFieldType } from "./parseFieldType";
