@@ -31,6 +31,7 @@
 		"rollup:help": "rollup --help",
 		"build": "rollup -c ./configs/rollup.config.js",
 		"lint": "eslint --ext .ts -c ./configs/.eslintrc.json ./src",
+		"lint:fix": "eslint --fix --ext .ts -c ./configs/.eslintrc.json ./src",
 		"pub": "npm run lint && npm run build:prod && npm publish",
 		"dev": "nodemon ./dev/index.js",
 		"test": "jest --config=./configs/jest.config.ts",

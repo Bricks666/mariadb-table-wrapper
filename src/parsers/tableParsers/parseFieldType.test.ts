@@ -35,7 +35,7 @@ describe("parseFieldType", () => {
 	});
 	test("enum", () => {
 		const sql = parseFieldType({ type: "ENUM", enumSetValues: ["a", "b"] });
-		expect(sql).toBe('ENUM("a","b")');
+		expect(sql).toBe("ENUM(\"a\",\"b\")");
 	});
 	test("string length and unsigned dont have any power", () => {
 		const sql = parseFieldType({
@@ -44,7 +44,7 @@ describe("parseFieldType", () => {
 			stringLen: 15,
 			isUnsigned: true,
 		});
-		expect(sql).toBe('ENUM("a","b")');
+		expect(sql).toBe("ENUM(\"a\",\"b\")");
 	});
 	test("throw because didn't pass values", () => {
 		expect(() => parseFieldType({ type: "ENUM" })).toThrow();

@@ -21,11 +21,11 @@ const parseJoinTable = (
 
 const convertFromInvert = (tableName: string, join: Join): JoinPair => {
 	const { table } = join;
-	const { foreignKeys } = receiveConfigs(table);
-	if (!foreignKeys) {
+	const config = receiveConfigs(table);
+	if (!config || !config.foreignKeys) {
 		throw new ParamsError("select", "joinedTable", "incorrect invert join");
 	}
-	const referencePair = Object.entries(foreignKeys).find(
+	const referencePair = Object.entries(config.foreignKeys).find(
 		([, reference]) => tableName === reference?.tableName
 	);
 	if (!referencePair) {

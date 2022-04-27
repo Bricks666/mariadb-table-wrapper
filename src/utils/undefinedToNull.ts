@@ -1,7 +1,7 @@
-import { AnyObject } from "../types";
+import { AnyObject } from "@/types";
 
 export const undefinedToNull = <T extends AnyObject>(object: AnyObject): T => {
-	for (const key in object) {
+	for (const key of Object.keys(object)) {
 		if (object[key] === undefined) {
 			object[key] = null;
 		}

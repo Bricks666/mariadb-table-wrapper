@@ -1,3 +1,4 @@
+// eslint-disable @typescript-eslint/no-explicit-any
 import { parseAlter } from "./parseAlter";
 
 const tableName = "test-table";
@@ -71,6 +72,7 @@ describe("parseAlter", () => {
 	test("parse ADD PRIMARY KEY REQUEST", () => {
 		const sql = parseAlter(tableName, {
 			type: "ADD PRIMARY KEY",
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			fieldNames: [fieldName] as any,
 		});
 
@@ -83,6 +85,6 @@ describe("parseAlter", () => {
 			type: "DROP PRIMARY KEY",
 		});
 
-		expect(sql).toEqual(`DROP PRIMARY KEY `);
+		expect(sql).toEqual("DROP PRIMARY KEY ");
 	});
 });

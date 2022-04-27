@@ -22,15 +22,12 @@
 		"quotes": ["error", "double"],
 		"semi": ["warn", "always"],
 		"no-alert": "error",
-		"no-debugger": "warn",
 		"no-constructor-return": "error",
-		"no-duplicate-imports": "warn",
 		"no-promise-executor-return": "error",
 		"no-self-compare": "error",
-		"no-console": "warn",
 
 		/* TYPESCRIPT */
 		"@typescript-eslint/no-explicit-any": "error"
 	},
-	"ignorePatterns": ["*.config.*", "*.js", "*.mjs", "*.test.*"]
+	"ignorePatterns": ["*.config.*", "*.js", "*.mjs"]
 }

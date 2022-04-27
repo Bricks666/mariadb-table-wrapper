@@ -8,9 +8,9 @@ export const parseAlter = <
 	T extends ValidSQLType = ValidSQLType,
 	TF extends AnyObject = AnyObject
 >(
-	tableName: string,
-	params: AlterTableRequest<T, TF>
-) => {
+		tableName: string,
+		params: AlterTableRequest<T, TF>
+	) => {
 	let options = "";
 	switch (params.type) {
 		case "ADD COLUMN": {

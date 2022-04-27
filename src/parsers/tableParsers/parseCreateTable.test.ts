@@ -1,13 +1,15 @@
 import { AnyObject, TableConfig } from "@/types";
 import { parseCreateTable } from "./parseCreateTable";
 
+const type = "BIGINT";
+const tableName = "test-table";
 describe("parseCreateTable", () => {
 	test("base config", () => {
 		const config: TableConfig<AnyObject> = {
-			table: "test-table",
+			table: tableName,
 			fields: {
 				a: {
-					type: "BIGINT",
+					type,
 				},
 			},
 		};
@@ -17,10 +19,10 @@ describe("parseCreateTable", () => {
 	});
 	test("with exists", () => {
 		const config: TableConfig<AnyObject> = {
-			table: "test-table",
+			table: tableName,
 			fields: {
 				a: {
-					type: "BIGINT",
+					type,
 				},
 			},
 			safeCreating: true,
@@ -31,10 +33,10 @@ describe("parseCreateTable", () => {
 	});
 	test("with primary key", () => {
 		const config: TableConfig<AnyObject> = {
-			table: "test-table",
+			table: tableName,
 			fields: {
 				a: {
-					type: "BIGINT",
+					type,
 					isPrimaryKey: true,
 				},
 			},
@@ -48,10 +50,10 @@ describe("parseCreateTable", () => {
 	});
 	test("several fields with primary key", () => {
 		const config: TableConfig<AnyObject> = {
-			table: "test-table",
+			table: tableName,
 			fields: {
 				a: {
-					type: "BIGINT",
+					type,
 					isPrimaryKey: true,
 				},
 				b: {
@@ -68,10 +70,10 @@ describe("parseCreateTable", () => {
 	});
 	test("several fields with several primary key", () => {
 		const config: TableConfig<AnyObject> = {
-			table: "test-table",
+			table: tableName,
 			fields: {
 				a: {
-					type: "BIGINT",
+					type,
 					isPrimaryKey: true,
 				},
 				b: {
@@ -89,10 +91,10 @@ describe("parseCreateTable", () => {
 	});
 	test("with foreign key", () => {
 		const config: TableConfig<AnyObject> = {
-			table: "test-table",
+			table: tableName,
 			fields: {
 				a: {
-					type: "BIGINT",
+					type,
 				},
 			},
 			safeCreating: true,
