@@ -59,7 +59,10 @@ export type GroupBy<TF extends AnyObject> = Array<keyof TF>;
 
 export type Count<TF extends AnyObject> = Array<AssociateField<TF, "*">>;
 
-export type AlterTableRequest<T extends ValidSQLType, TF extends AnyObject> =
+export type AlterTableRequest<
+	T extends ValidSQLType = ValidSQLType,
+	TF extends AnyObject = AnyObject
+> =
 	| AddColumn<T>
 	| DropColumn<TF>
 	| ModifyColumn<TF, T>

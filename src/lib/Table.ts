@@ -201,6 +201,11 @@ export class Table<TF extends AnyObject> {
 		);
 	}
 
+	public async disconnect() {
+		await this.connection?.end();
+		this.connection = null;
+	}
+
 	private async request<R = unknown>(...options: string[]): Promise<R[]> {
 		return Array.from(await this.connection?.query(`${options.join(" ")};`));
 	}

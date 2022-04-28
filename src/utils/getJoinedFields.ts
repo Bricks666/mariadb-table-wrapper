@@ -22,22 +22,22 @@ export const getJoinedFields = <T extends AnyObject>(
 
 	references.forEach((reference) => {
 		/* Нужно, чтобы ts не жаловался */
-		if (reference) {
-			const refConfig = receiveConfigs(reference.tableName);
+		if (!reference) {
+			return;
+		}
+		const refConfig = receiveConfigs(reference.tableName);
 
-			if (refConfig) {
-				const refFields = Object.keys(refConfig.fields).filter(
-					(fieldName) => fieldName !== reference.field
-				);
+		if (!refConfig) {
+			return;
+		}
+		const refFields = Object.keys(refConfig.fields).filter(
+			(fieldName) => fieldName !== reference.field
+		);
 
-				fields.push(
-					...refFields.map((field) => addPrefix(field, refConfig.table))
-				);
+		fields.push(...refFields.map((field) => addPrefix(field, refConfig.table)));
 
-				if (refConfig.foreignKeys && recurseJoin) {
-					fields.push(...getJoinedFields(refConfig.foreignKeys));
-				}
-			}
+		if (refConfig.foreignKeys && recurseJoin) {
+			fields.push(...getJoinedFields(refConfig.foreignKeys));
 		}
 	});
 

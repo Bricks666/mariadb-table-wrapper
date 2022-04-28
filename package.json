@@ -32,7 +32,7 @@
 		"build": "rollup -c ./configs/rollup.config.js",
 		"lint": "eslint --ext .ts -c ./configs/.eslintrc.json ./src",
 		"lint:fix": "eslint --fix --ext .ts -c ./configs/.eslintrc.json ./src",
-		"pub": "npm run lint && npm run build:prod && npm publish",
+		"pub": "npm run lint && npm run build && npm publish",
 		"dev": "nodemon ./dev/index.js",
 		"test": "jest --config=./configs/jest.config.ts",
 		"version:patch": "npm version patch --no-git-tag-version",
