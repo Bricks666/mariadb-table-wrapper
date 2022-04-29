@@ -157,7 +157,7 @@ export class Table<TF extends AnyObject> {
 		await this.request("DELETE FROM", this.name, options);
 	}
 
-	public async update<Values extends TF>(
+	public async update<Values extends Partial<TF>>(
 		newValues: Values,
 		config?: Query<TF>
 	) {
