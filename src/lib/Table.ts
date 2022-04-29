@@ -137,7 +137,7 @@ export class Table<TF extends AnyObject> {
 		);
 	}
 
-	public async selectOne<Response>(
+	public async selectOne<Response = TF>(
 		config: SelectQuery<TF> = {}
 	): Promise<Response | undefined> {
 		return (
