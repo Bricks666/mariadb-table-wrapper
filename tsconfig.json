@@ -22,7 +22,8 @@
 		"skipLibCheck": true,
 		"declaration": true,
 		"resolveJsonModule": true,
-		"declarationMap": false
+		"declarationMap": false,
+		"plugins": [{ "transform": "@zerollup/ts-transform-paths", "exclude": [] }]
 	},
 	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "dist", ".*", "*.test.*"]
