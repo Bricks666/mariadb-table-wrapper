@@ -102,15 +102,15 @@ export class Table<TF extends AnyObject> {
 
 		let joinSQL: SQL = "";
 
-		if (joinedTable?.enable && this.foreignKeys) {
+		if (joinedTable?.enable) {
 			joinSQL = parseJoinTables(
 				this.name,
-				this.foreignKeys,
+				this.foreignKeys || {},
 				joinedTable.joinTable
 			);
 			fields.push(
 				...getJoinedFields(
-					this.foreignKeys,
+					this.foreignKeys || {},
 					joinedTable.joinTable,
 					joinedTable.recurseInclude
 				)
