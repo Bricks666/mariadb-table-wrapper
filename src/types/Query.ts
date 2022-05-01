@@ -2,7 +2,10 @@ import { AnyObject, Expressions, MappedObject } from ".";
 import { FieldConfig, Reference, ValidSQLType } from "./Table";
 
 export interface Query<TF extends AnyObject> {
-	readonly filters?: TableFilters<TF> | TableFilters<TF>[];
+	readonly filters?:
+		| TableFilters<TF>
+		| TableFilters<TF>[]
+		| MappedObject<TableFilters<AnyObject> | TableFilters<AnyObject>[]>;
 	readonly orderBy?: OrderBy<TF> /* | MappedObject<OrderBy<AnyObject>> */;
 	readonly limit?: Limit;
 	readonly groupBy?: GroupBy<TF> | MappedObject<GroupBy<AnyObject>>;

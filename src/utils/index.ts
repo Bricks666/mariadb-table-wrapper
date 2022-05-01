@@ -9,3 +9,5 @@ export { toJSON } from "./toJSON";
 export { toString } from "./toString";
 export { undefinedToNull } from "./undefinedToNull";
 export { parseConstraint } from "./parseConstraint";
+export { isExpression } from "./isExpression";
+export { isExpressions } from "./isExpressions";

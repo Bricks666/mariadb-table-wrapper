@@ -1,4 +1,4 @@
-import { AnyObject, Limit, OrderBy, TableFilters } from "@/types";
+import { AnyObject, Limit, MappedObject, OrderBy, TableFilters } from "@/types";
 import { parseQueryOptions } from "./parseQueryOptions";
 
 const tableName = "test-table";
@@ -50,6 +50,14 @@ const whereOr: TableFilters<AnyObject> = {
 		],
 	],
 };
+const multiTableWhere: MappedObject<TableFilters<AnyObject>> = {
+	users: {
+		a: {
+			operator: "!=",
+			value: 15,
+		},
+	},
+};
 
 describe("parseQueryOptions", () => {
 	test("parse empty options", () => {
@@ -87,6 +95,10 @@ describe("parseQueryOptions", () => {
 		expect(sql).toBe(
 			`WHERE ((${tableName}.a = 15) OR (${tableName}.a BETWEEN 15 AND 16))`
 		);
+	});
+	test("parse multi table where", () => {
+		const sql = parseQueryOptions(tableName, { filters: multiTableWhere });
+		expect(sql).toBe("WHERE (users.a != 15)");
 	});
 	test("parse where and order", () => {
 		const sql = parseQueryOptions(tableName, { filters: whereSimple, orderBy });

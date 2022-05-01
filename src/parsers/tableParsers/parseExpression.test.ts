@@ -1,4 +1,5 @@
 import { ParamsError } from "@/lib";
+import { Expression, ValidSQLType } from "@/types";
 import { parseExpression } from "./parseExpression";
 
 describe("parseExpression", () => {
@@ -16,7 +17,9 @@ describe("parseExpression", () => {
 			expect(sql).toBe("NOT a != 15");
 		});
 		test("error", () => {
-			expect(() => parseExpression("a", { operator: "!=" })).toThrowError(
+			expect(() =>
+				parseExpression("a", { operator: "!=" } as Expression<ValidSQLType>)
+			).toThrowError(
 				new ParamsError(
 					"createTable",
 					"parseExpression",
@@ -67,7 +70,9 @@ describe("parseExpression", () => {
 			expect(sql).toBe("NOT a IN (15, 10)");
 		});
 		test("error", () => {
-			expect(() => parseExpression("a", { operator: "in" })).toThrowError(
+			expect(() =>
+				parseExpression("a", { operator: "in" } as Expression<ValidSQLType>)
+			).toThrowError(
 				new ParamsError(
 					"createTable",
 					"parseExpression",
@@ -78,19 +83,21 @@ describe("parseExpression", () => {
 	});
 	describe("like", () => {
 		test("standard", () => {
-			const sql = parseExpression("a", { operator: "like", template: "A" });
+			const sql = parseExpression("a", { operator: "like", value: "A" });
 			expect(sql).toBe("a LIKE \"A\"");
 		});
 		test("not", () => {
 			const sql = parseExpression("a", {
 				operator: "like",
-				template: "A",
+				value: "A",
 				not: true,
 			});
 			expect(sql).toBe("NOT a LIKE \"A\"");
 		});
 		test("error", () => {
-			expect(() => parseExpression("a", { operator: "like" })).toThrowError(
+			expect(() =>
+				parseExpression("a", { operator: "like" } as Expression<ValidSQLType>)
+			).toThrowError(
 				new ParamsError(
 					"createTable",
 					"parseExpression",
@@ -101,19 +108,21 @@ describe("parseExpression", () => {
 	});
 	describe("regExp", () => {
 		test("standard", () => {
-			const sql = parseExpression("a", { operator: "regExp", template: "A" });
+			const sql = parseExpression("a", { operator: "regExp", value: "A" });
 			expect(sql).toBe("a REGEXP \"A\"");
 		});
 		test("not", () => {
 			const sql = parseExpression("a", {
 				operator: "regExp",
-				template: "A",
+				value: "A",
 				not: true,
 			});
 			expect(sql).toBe("NOT a REGEXP \"A\"");
 		});
 		test("error", () => {
-			expect(() => parseExpression("a", { operator: "regExp" })).toThrowError(
+			expect(() =>
+				parseExpression("a", { operator: "regExp" } as Expression<ValidSQLType>)
+			).toThrowError(
 				new ParamsError(
 					"createTable",
 					"parseExpression",

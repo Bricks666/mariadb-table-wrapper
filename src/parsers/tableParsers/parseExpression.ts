@@ -8,7 +8,7 @@ import { parseSQLValues } from "../queryParsers";
  */
 export const parseExpression = <T extends ValidSQLType>(
 	field: string,
-	{ operator, value, not, template }: Expression<T>
+	{ operator, value, not }: Expression<T>
 ): SQL => {
 	const SQLOperator = operator.toUpperCase();
 	const conditionParts: SQL[] = [];
@@ -33,8 +33,8 @@ export const parseExpression = <T extends ValidSQLType>(
 		}
 		case "regExp":
 		case "like": {
-			abortInvalidParsing(operator, template);
-			conditionParts.push(field, SQLOperator, parseSQLValues([template]));
+			abortInvalidParsing(operator, value);
+			conditionParts.push(field, SQLOperator, parseSQLValues([value]));
 			break;
 		}
 		case "is null": {

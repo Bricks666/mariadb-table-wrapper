@@ -6,7 +6,8 @@ import {
 	SQL,
 	AssociateField,
 	MappedObject,
-} from "@/types/";
+	SelectQuery,
+} from "@/types";
 import { addPrefix, isArray, isEmpty, toString } from "@/utils";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
@@ -15,7 +16,7 @@ const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 
 const parseIncludes = <T extends AnyObject>(
 	tableName: string,
-	includes: IncludeFields<T> | MappedObject<IncludeFields<AnyObject>>
+	includes: NonNullable<SelectQuery<T>["includes"]>
 ): SQL[] => {
 	if (isArray(includes)) {
 		return includes.map((el) => {
@@ -35,7 +36,7 @@ const parseExclude = (excludes: string[], table: string): string[] => {
 const parseExcludes = <T extends AnyObject>(
 	tableName: string,
 	fields: string[],
-	excludes: ExcludeFields<T> | MappedObject<ExcludeFields<AnyObject>>
+	excludes: NonNullable<SelectQuery<T>["excludes"]>
 ): SQL[] => {
 	let excludesFields: string[] = [];
 
@@ -53,8 +54,8 @@ const parseExcludes = <T extends AnyObject>(
 	);
 };
 
-const parseCount = <TF>(
-	count: Count<TF> | MappedObject<Count<AnyObject>>,
+const parseCount = <T extends AnyObject>(
+	count: NonNullable<SelectQuery<T>["count"]>,
 	tableName: string
 ) => {
 	const parsedCount: SQL[] = [];

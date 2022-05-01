@@ -87,9 +87,8 @@ export type Expressions<T extends ValidSQLType> =
 
 export interface Expression<T extends ValidSQLType> {
 	readonly operator: Operators;
-	readonly value?: T | T[];
+	readonly value: this["operator"] extends "regExp" | "like" ? string : T | T[];
 	readonly not?: boolean;
-	readonly template?: string;
 }
 
 export type ArithmeticOperators = "+" | "-" | "*" | "/";

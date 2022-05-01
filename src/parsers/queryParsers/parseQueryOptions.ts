@@ -4,14 +4,13 @@ import {
 	toString,
 	isArray,
 	addPrefix,
+	isObject,
+	isExpressions,
 } from "@/utils";
 import {
 	AnyObject,
 	Expressions,
-	GroupBy,
-	Limit,
 	MappedObject,
-	OrderBy,
 	OrderDirection,
 	Query,
 	SQL,
@@ -22,18 +21,33 @@ import { parseExpressions } from "../tableParsers";
 
 const parseWhere = <T extends AnyObject>(
 	tableName: string,
-	filters: TableFilters<T> | TableFilters<T>[]
+	filters: NonNullable<Query<T>["filters"]>
 ): SQL => {
 	const SQLFilters: SQL[] = [];
-	if (isArray(filters)) {
-		filters.forEach((filter) => {
-			SQLFilters.push(parseFilter(tableName, filter));
+	if (isObject(filters) && !isExpressions(Object.values(filters)[0])) {
+		Object.entries(
+			filters as MappedObject<TableFilters<T> | TableFilters<T>[]>
+		).forEach(([tableName, filters]) => {
+			SQLFilters.push(...parseFilters(tableName, filters));
 		});
 	} else {
-		SQLFilters.push(parseFilter(tableName, filters));
+		SQLFilters.push(
+			...parseFilters(tableName, filters as TableFilters<T> | TableFilters<T>[])
+		);
 	}
 
 	return `WHERE ${toString(SQLFilters, " OR ")}`;
+};
+
+const parseFilters = <T extends AnyObject>(
+	tableName: string,
+	filters: TableFilters<T> | TableFilters<T>[]
+) => {
+	if (isArray(filters)) {
+		return filters.map((filter) => parseFilter(tableName, filter));
+	} else {
+		return [parseFilter(tableName, filters as TableFilters<T>)];
+	}
 };
 
 const parseFilter = <T extends AnyObject>(
@@ -51,13 +65,16 @@ const parseFilter = <T extends AnyObject>(
 	return toString(conditions, " AND ");
 };
 
-const parseLimit = ({ page, countOnPage }: Limit): SQL => {
+const parseLimit = <TF extends AnyObject>({
+	page,
+	countOnPage,
+}: NonNullable<Query<TF>["limit"]>): SQL => {
 	const start = (page - 1) * countOnPage;
 	return `LIMIT ${start},${countOnPage}`;
 };
 
 const parseOrdering = <T extends AnyObject>(
-	orderBy: OrderBy<T> /* | MappedObject<OrderBy<AnyObject>> */
+	orderBy: NonNullable<Query<T>["orderBy"]>
 ) => {
 	const fieldAndDirection = Object.entries(orderBy);
 	const orderingConditions: string[] = fieldAndDirection.map((pair) =>
@@ -69,7 +86,7 @@ const parseOrdering = <T extends AnyObject>(
 
 const parseGroupBy = <TF extends AnyObject>(
 	tableName: string,
-	groupBy: GroupBy<TF> | MappedObject<GroupBy<AnyObject>>
+	groupBy: NonNullable<Query<TF>["groupBy"]>
 ): string => {
 	const grouping: string[] = [];
 
