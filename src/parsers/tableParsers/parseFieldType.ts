@@ -40,7 +40,10 @@ export const parseFieldType = <TF extends ValidSQLType>({
 		) {
 			throw new Error("Enum/Set values must be provided");
 		}
-		SQLType += `(${toString(toJSON(fieldConfig.enumSetValues), ",")})`;
+		SQLType += `(${toString(
+			toJSON(fieldConfig.enumSetValues.map(String)),
+			","
+		)})`;
 	}
 
 	return SQLType;
