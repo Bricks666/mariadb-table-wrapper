@@ -72,7 +72,13 @@ export class Table<TF extends AnyObject> {
 			paramsArray.map((param) => parseSQLValues(undefinedToNull(param)))
 		);
 
-		await this.request("INSERT", this.name, `(${fields})`, "VALUES", values);
+		await this.request(
+			"INSERT",
+			this.name,
+			`(${fields})`,
+			"VALUES",
+			`(${values})`
+		);
 	}
 
 	public async select<Response = TF>(

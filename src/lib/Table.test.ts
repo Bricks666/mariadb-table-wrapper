@@ -15,7 +15,9 @@ import { TableConfig, AnyObject, AlterTableRequest } from "@/types";
 import { Connection } from "mariadb";
 import { toString, getJoinedFields } from "@/utils";
 import { Table } from "./Table";
-
+/**
+ * TODO: Написать нормальные тесты, что будут проверять параметры, вызываемый при запросе
+ */
 const query = jest.fn(async () => []);
 const end = jest.fn(async () => true);
 const connection = {
