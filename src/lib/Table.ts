@@ -106,7 +106,8 @@ export class Table<TF extends AnyObject> {
 			joinSQL = parseJoinTables(
 				this.name,
 				this.foreignKeys || {},
-				joinedTable.joinTable
+				joinedTable.joinTable,
+				joinedTable.recurseInclude
 			);
 			fields.push(
 				...getJoinedFields(

@@ -60,7 +60,14 @@ export type OrderDirection = "DESC" | "ASC";
 
 export type GroupBy<TF extends AnyObject> = Array<keyof TF>;
 
-export type Count<TF extends AnyObject> = Array<AssociateField<TF, "*">>;
+export interface CountExpression<TF extends AnyObject> {
+	readonly field: keyof TF;
+	readonly expressions: Expressions<TF[this["field"]]>;
+	readonly name?: string;
+}
+export type Count<TF extends AnyObject> = Array<
+	keyof TF | AssociateField<TF, "*"> | CountExpression<TF>
+>;
 
 export type AlterTableRequest<
 	T extends ValidSQLType = ValidSQLType,

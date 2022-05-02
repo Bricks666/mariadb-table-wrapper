@@ -8,7 +8,8 @@ import {
 	MappedObject,
 	SelectQuery,
 } from "@/types";
-import { addPrefix, isArray, isEmpty, toString } from "@/utils";
+import { addPrefix, isArray, isEmpty, isObject, toString } from "@/utils";
+import { parseExpressions } from "../tableParsers";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 	return toString(associate, " as ");
@@ -62,10 +63,21 @@ const parseCount = <T extends AnyObject>(
 
 	if (isArray(count)) {
 		parsedCount.push(
-			...count.map(
-				([field, name]) =>
-					`count(${addPrefix(field as string, tableName)}) as ${name}`
-			)
+			...count.map((count) => {
+				let field = null;
+				let name = null;
+				if (isArray(count)) {
+					field = addPrefix(count[0] as string, tableName);
+					name = count[1];
+				} else if (isObject(count)) {
+					field = parseExpressions(count.field as string, count.expressions);
+					name = count.name || null;
+				} else {
+					field = addPrefix(count as string, tableName);
+				}
+				const sql = `count(${field.toString()})`;
+				return name ? parseAs([sql, name]) : sql;
+			})
 		);
 	} else {
 		const countPairs = Object.entries(count);

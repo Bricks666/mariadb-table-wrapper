@@ -20,20 +20,20 @@ const outputPath = {
 	es: pkg.module,
 };
 
-export default (...args) => {
-	return {
-		input: "./src/index.ts",
-		output: [generateOutput("cjs"), generateOutput("es")],
-		external: [/.json/, /node_modules/],
-		plugins: [
-			resolve(),
-			typescript({
-				typescript: ttypescript,
-			}),
-			commonjs(),
-			babel({
-				babelHelpers: "bundled",
-			}),
-		],
-	};
+/** @type {import("rollup").RollupOptions} */
+export default {
+	input: "./src/index.ts",
+	output: [generateOutput("cjs"), generateOutput("es")],
+	external: [/.json/, /node_modules/],
+
+	plugins: [
+		resolve(),
+		typescript({
+			typescript: ttypescript,
+		}),
+		commonjs(),
+		babel({
+			babelHelpers: "bundled",
+		}),
+	],
 };
