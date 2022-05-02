@@ -70,7 +70,10 @@ const parseCount = <T extends AnyObject>(
 					field = addPrefix(count[0] as string, tableName);
 					name = count[1];
 				} else if (isObject(count)) {
-					field = parseExpressions(count.field as string, count.expressions);
+					field = parseExpressions(
+						addPrefix(count.field as string, tableName) as string,
+						count.expressions
+					);
 					name = count.name || null;
 				} else {
 					field = addPrefix(count as string, tableName);

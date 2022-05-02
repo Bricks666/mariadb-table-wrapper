@@ -32,8 +32,11 @@ export interface JoinTable {
 	readonly joinTable?: Array<Join | string>;
 	readonly recurseInclude?: boolean;
 }
+export type JoinType = "INNER" | "LEFT" | "RIGHT";
+
 export interface Join {
 	readonly table: string;
+	readonly type?: JoinType;
 	readonly invert?: boolean;
 }
 
@@ -66,7 +69,7 @@ export interface CountExpression<TF extends AnyObject> {
 	readonly name?: string;
 }
 export type Count<TF extends AnyObject> = Array<
-	keyof TF | AssociateField<TF, "*"> | CountExpression<TF>
+	keyof TF | AssociateField<TF> | CountExpression<TF>
 >;
 
 export type AlterTableRequest<

@@ -43,30 +43,46 @@ describe("parse Join Tables", () => {
 		const sql = parseJoinTables(tableName, foreignKeys);
 
 		expect(sql).toEqual(
-			`JOIN a ON ${tableName}.a = a.a JOIN b ON ${tableName}.b = b.b`
+			`INNER JOIN a ON ${tableName}.a = a.a INNER JOIN b ON ${tableName}.b = b.b`
 		);
 	});
 	test("parse join table a", () => {
 		const sql = parseJoinTables(tableName, foreignKeys, ["a"]);
 
-		expect(sql).toEqual(`JOIN a ON ${tableName}.a = a.a`);
+		expect(sql).toEqual(`INNER JOIN a ON ${tableName}.a = a.a`);
 	});
 	test("parse join table b", () => {
 		const sql = parseJoinTables(tableName, foreignKeys, ["b"]);
 
-		expect(sql).toEqual(`JOIN b ON ${tableName}.b = b.b`);
+		expect(sql).toEqual(`INNER JOIN b ON ${tableName}.b = b.b`);
+	});
+	test("parse left join table b", () => {
+		const sql = parseJoinTables(tableName, foreignKeys, [
+			{ table: "b", type: "LEFT" },
+		]);
+
+		expect(sql).toEqual(`LEFT JOIN b ON ${tableName}.b = b.b`);
+	});
+	test("parse right join table b", () => {
+		const sql = parseJoinTables(tableName, foreignKeys, [
+			{ table: "b", type: "RIGHT" },
+		]);
+
+		expect(sql).toEqual(`RIGHT JOIN b ON ${tableName}.b = b.b`);
 	});
 	test("parse join with invert", () => {
 		const sql = parseJoinTables(tableName, foreignKeys, [
 			{ table: "c", invert: true },
 		]);
 
-		expect(sql).toEqual(`JOIN c ON ${tableName}.c = c.c`);
+		expect(sql).toEqual(`INNER JOIN c ON ${tableName}.c = c.c`);
 	});
 	test("parse join with recursive", () => {
 		const sql = parseJoinTables(tableName, foreignKeys, ["b"], true);
 
-		expect(sql).toEqual(`JOIN b ON ${tableName}.b = b.b JOIN a ON b.a = a.a`);
+		expect(sql).toEqual(
+			`INNER JOIN b ON ${tableName}.b = b.b INNER JOIN a ON b.a = a.a`
+		);
 	});
 	test("parse join recursive and invert", () => {
 		const sql = parseJoinTables(
@@ -77,7 +93,7 @@ describe("parse Join Tables", () => {
 		);
 
 		expect(sql).toEqual(
-			`JOIN c ON ${tableName}.c = c.c JOIN b ON ${tableName}.b = b.b JOIN a ON b.a = a.a`
+			`INNER JOIN c ON ${tableName}.c = c.c INNER JOIN b ON ${tableName}.b = b.b INNER JOIN a ON b.a = a.a`
 		);
 	});
 });

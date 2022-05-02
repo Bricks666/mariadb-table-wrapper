@@ -17,6 +17,16 @@ const excludesObject = {
 	[tableName]: ["a"],
 };
 const count: Count<AnyObject> = [["*", "h"]];
+const objectCount: Count<AnyObject> = [
+	{
+		field: "*",
+		expressions: {
+			operator: "=",
+			value: 15,
+		},
+		name: "h",
+	},
+];
 
 describe("parseSelectedFields", () => {
 	test("all fields", () => {
@@ -73,6 +83,11 @@ describe("parseSelectedFields", () => {
 		const sql = parseSelectedFields({ tableName, fields, count });
 
 		expect(sql).toBe(`count(${tableName}.*) as h`);
+	});
+	test("object count", () => {
+		const sql = parseSelectedFields({ tableName, fields, count: objectCount });
+
+		expect(sql).toBe(`count((${tableName}.* = 15)) as h`);
 	});
 	test("count and includes", () => {
 		const sql = parseSelectedFields({

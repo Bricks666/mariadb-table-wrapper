@@ -1,26 +1,34 @@
 import { toString } from "@/utils/toString";
 import { receiveConfigs } from "@/utils/receiveConfigs";
-import { AnyObject, ForeignKeys, Join, Reference, SQL } from "@/types";
+import {
+	AnyObject,
+	ForeignKeys,
+	Join,
+	JoinType,
+	Reference,
+	SQL,
+} from "@/types";
 import { ParamsError } from "@/lib";
 
 type JoinRef = [string, Reference | undefined];
-type JoinPair = [string, JoinRef];
 
-const parseJoinTable = (
-	tableName: string,
-	[innerField, reference]: JoinRef
-): SQL => {
-	if (typeof reference === "undefined") {
-		return "";
-	}
-
-	const SQLScript: SQL = `JOIN ${reference.tableName} ON ${tableName}.${innerField} = ${reference.tableName}.${reference.field}`;
-
-	return SQLScript;
+type JoinConfig = {
+	readonly table: string;
+	readonly field: string;
+	readonly reference: Reference;
+	readonly type?: JoinType;
 };
 
-const convertFromInvert = (tableName: string, join: Join): JoinPair => {
-	const { table } = join;
+const parseJoinTable = ({
+	field,
+	reference,
+	table,
+	type = "INNER",
+}: JoinConfig): SQL => {
+	return `${type} JOIN ${reference.tableName} ON ${table}.${field} = ${reference.tableName}.${reference.field}`;
+};
+const convertFromInvert = (tableName: string, join: Join): JoinConfig => {
+	const { table, type } = join;
 	const config = receiveConfigs(table);
 	if (!config || !config.foreignKeys) {
 		throw new ParamsError("select", "joinedTable", "incorrect invert join");
@@ -31,24 +39,22 @@ const convertFromInvert = (tableName: string, join: Join): JoinPair => {
 	if (!referencePair) {
 		throw new ParamsError("select", "joinedTable", "incorrect invert join");
 	}
-
-	return [
-		tableName,
-		[
-			referencePair[1]!.field,
-			{
-				field: referencePair[0],
-				tableName: table,
-			},
-		],
-	];
+	return {
+		table: tableName,
+		field: referencePair[0],
+		reference: {
+			tableName: table,
+			field: referencePair[1]!.field,
+		},
+		type: type,
+	};
 };
 
 const toJoinPair = (
 	tableName: string,
 	foreignPairs: JoinRef[],
 	joinedTable: Array<Join | string>
-): JoinPair[] => {
+): JoinConfig[] => {
 	return joinedTable.map((join) => {
 		if (typeof join === "string") {
 			const pair = foreignPairs.find(
@@ -57,7 +63,7 @@ const toJoinPair = (
 			if (!pair) {
 				throw new Error();
 			}
-			return [tableName, pair];
+			return { field: pair[0], reference: pair[1]!, table: tableName };
 		} else if (join.invert) {
 			return convertFromInvert(tableName, join);
 		}
@@ -67,7 +73,12 @@ const toJoinPair = (
 		if (!pair) {
 			throw new Error();
 		}
-		return [tableName, pair];
+		return {
+			field: pair[0],
+			reference: pair[1]!,
+			table: tableName,
+			type: join.type,
+		};
 	});
 };
 
@@ -78,18 +89,20 @@ export const parseJoinTables = <T extends AnyObject>(
 	recurseJoin = false
 ): string => {
 	const foreignPairs: JoinRef[] = Object.entries(foreignKeys);
-	let joins: JoinPair[] = [];
+	let joins: JoinConfig[] = [];
 
 	if (!joinedTable) {
-		joins = foreignPairs.map((pair) => [tableName, pair]);
+		joins = foreignPairs.map<JoinConfig>((pair) => ({
+			table: tableName,
+			field: pair[0],
+			reference: pair[1]!,
+		}));
 	} else {
 		joins = toJoinPair(tableName, foreignPairs, joinedTable);
 	}
 
-	const SQLcommands: SQL[] = joins.map(([tableName, pair]) =>
-		parseJoinTable(tableName, pair)
-	);
-
+	const SQLcommands: SQL[] = joins.map(parseJoinTable);
+	/** TODO: rework recursive include */
 	if (recurseJoin) {
 		Object.values(foreignKeys).forEach((reference) => {
 			if (reference) {
