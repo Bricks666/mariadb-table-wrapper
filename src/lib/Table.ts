@@ -214,6 +214,12 @@ export class Table<TF extends AnyObject> {
 	}
 
 	private async request<R = unknown>(...options: string[]): Promise<R[]> {
-		return Array.from(await this.connection?.query(`${options.join(" ")};`));
+		return Array.from(
+			await this.connection?.query({
+				sql: `${options.join(" ")};`,
+				insertIdAsNumber: true,
+				bigIntAsNumber: true,
+			})
+		);
 	}
 }

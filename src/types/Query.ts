@@ -47,7 +47,7 @@ export interface Limit {
 export type ExcludeFields<TF extends AnyObject> = Array<keyof TF>;
 
 export type IncludeFields<TF extends AnyObject> = Array<
-	AssociateField<TF> | keyof TF
+	AssociateField<TF, "*"> | keyof TF
 >;
 
 export type AssociateField<TF extends AnyObject, AdditionKeys = never> = [
