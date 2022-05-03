@@ -1,4 +1,5 @@
 import { AnyObject } from ".";
+import { ValidSQLType } from "./Common";
 
 export interface TableConfig<TF extends AnyObject> {
 	readonly table: string;
@@ -87,7 +88,7 @@ export type Expressions<T extends ValidSQLType> =
 
 export interface Expression<T extends ValidSQLType> {
 	readonly operator: Operators;
-	readonly value: this["operator"] extends "regExp" | "like" ? string : T | T[];
+	readonly value: T | T[];
 	readonly not?: boolean;
 }
 
@@ -105,5 +106,3 @@ export type Operators =
 	| "like"
 	| "regExp"
 	| "is null";
-
-export type ValidSQLType = string | number;

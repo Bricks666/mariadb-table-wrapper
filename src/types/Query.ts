@@ -1,5 +1,7 @@
-import { AnyObject, Expressions, MappedObject } from ".";
-import { FieldConfig, Reference, ValidSQLType } from "./Table";
+import { AnyObject, MappedObject } from "./Common";
+import { ValidSQLType } from "./Common";
+import { Count } from "./Functions";
+import { FieldConfig, Reference, Expressions } from "./Table";
 
 export interface Query<TF extends AnyObject> {
 	readonly filters?:
@@ -62,15 +64,6 @@ export type OrderBy<TF extends AnyObject> = {
 export type OrderDirection = "DESC" | "ASC";
 
 export type GroupBy<TF extends AnyObject> = Array<keyof TF>;
-
-export interface CountExpression<TF extends AnyObject> {
-	readonly field: keyof TF;
-	readonly expressions: Expressions<TF[this["field"]]>;
-	readonly name?: string;
-}
-export type Count<TF extends AnyObject> = Array<
-	keyof TF | AssociateField<TF> | CountExpression<TF>
->;
 
 export type AlterTableRequest<
 	T extends ValidSQLType = ValidSQLType,

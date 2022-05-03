@@ -8,8 +8,12 @@ import {
 	MappedObject,
 	SelectQuery,
 } from "@/types";
-import { addPrefix, isArray, isEmpty, isObject, toString } from "@/utils";
-import { parseExpressions } from "../tableParsers";
+import {
+	addPrefix,
+	isArray,
+	isEmpty,
+	/*  isObject, */ toString,
+} from "@/utils";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 	return toString(associate, " as ");
@@ -55,30 +59,27 @@ const parseExcludes = <T extends AnyObject>(
 	);
 };
 
-const parseCount = <T extends AnyObject>(
+/* const parseCount = <T extends AnyObject>(
 	count: NonNullable<SelectQuery<T>["count"]>,
 	tableName: string
 ) => {
 	const parsedCount: SQL[] = [];
 
-	if (isArray(count)) {
+	if (count.type === "count") {
 		parsedCount.push(
 			...count.map((count) => {
-				let field = null;
-				let name = null;
+				let field: string | null = null;
+				let name: string | null = null;
 				if (isArray(count)) {
 					field = addPrefix(count[0] as string, tableName);
 					name = count[1];
 				} else if (isObject(count)) {
-					field = parseExpressions(
-						addPrefix(count.field as string, tableName) as string,
-						count.expressions
-					);
+					field = count.function as unknown as string;
 					name = count.name || null;
 				} else {
 					field = addPrefix(count as string, tableName);
 				}
-				const sql = `count(${field.toString()})`;
+				const sql = `count(${field!.toString()})`;
 				return name ? parseAs([sql, name]) : sql;
 			})
 		);
@@ -90,7 +91,7 @@ const parseCount = <T extends AnyObject>(
 	}
 
 	return parsedCount;
-};
+}; */
 interface SelectedFieldsParams<TF extends AnyObject> {
 	tableName: string;
 	fields: string[];
@@ -104,8 +105,8 @@ export const parseSelectedFields = <TF extends AnyObject>({
 	fields,
 	excludes,
 	includes,
-	count,
-}: SelectedFieldsParams<TF>) => {
+}: /* count, */
+SelectedFieldsParams<TF>) => {
 	const select: SQL[] = [];
 
 	if (excludes && !isEmpty(excludes)) {
@@ -116,9 +117,9 @@ export const parseSelectedFields = <TF extends AnyObject>({
 		select.push(...parseIncludes(tableName, includes));
 	}
 
-	if (count && !isEmpty(count)) {
+	/* 	if (count && !isEmpty(count)) {
 		select.push(...parseCount(count, tableName));
-	}
+	} */
 
 	return toString(select) || "*";
 };
