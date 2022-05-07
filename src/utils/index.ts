@@ -1,5 +1,5 @@
 export { accumulateConfigs } from "./accumulateConfigs";
-export { addPrefix } from "./addPrefix";
+export { fullField } from "./fullField";
 export { getJoinedFields } from "./getJoinedFields";
 export { isArray } from "./isArray";
 export { isEmpty } from "./isEmpty";

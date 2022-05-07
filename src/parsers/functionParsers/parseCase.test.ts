@@ -1,9 +1,9 @@
-import { AnyObject, Case } from "@/types";
+import { Case } from "@/types";
 import { parseCase } from "./parseCase";
 
 const table = "test-table";
 const field = "field";
-const simpleCase: Case<AnyObject> = {
+const simpleCase: Case = {
 	type: "case",
 	cases: [
 		{
@@ -17,7 +17,7 @@ const simpleCase: Case<AnyObject> = {
 		},
 	],
 };
-const defaultCase: Case<AnyObject> = {
+const defaultCase: Case = {
 	...simpleCase,
 	defaultValue: 0,
 };

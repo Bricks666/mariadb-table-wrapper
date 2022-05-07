@@ -1,4 +1,4 @@
-import { addPrefix } from "./addPrefix";
+import { fullField } from "./fullField";
 import { isEmpty } from "./isEmpty";
 import { receiveConfigs } from "./receiveConfigs";
 import { AnyObject, ForeignKeys, Join, Reference } from "@/types";
@@ -34,7 +34,7 @@ export const getJoinedFields = <T extends AnyObject>(
 			(fieldName) => fieldName !== reference.field
 		);
 
-		fields.push(...refFields.map((field) => addPrefix(field, refConfig.table)));
+		fields.push(...refFields.map((field) => fullField(refConfig.table, field)));
 
 		if (refConfig.foreignKeys && recurseJoin) {
 			fields.push(...getJoinedFields(refConfig.foreignKeys));

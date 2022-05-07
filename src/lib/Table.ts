@@ -14,7 +14,7 @@ import {
 } from "@/types";
 import {
 	accumulateConfigs,
-	addPrefix,
+	fullField,
 	getJoinedFields,
 	isArray,
 	isEmpty,
@@ -91,13 +91,13 @@ export class Table<TF extends AnyObject> {
 			orderBy,
 			joinedTable,
 			groupBy,
-			count,
+			functions,
 			distinct,
 			limit = { page: 1, countOnPage: 100 },
 		} = config;
 		/* TODO:  Добавить проверки входных параметров */
 		const fields: string[] = Object.keys(this.fields).map((field) =>
-			addPrefix(field, this.name)
+			fullField(this.name, field)
 		);
 
 		let joinSQL: SQL = "";
@@ -123,7 +123,7 @@ export class Table<TF extends AnyObject> {
 			fields,
 			excludes,
 			includes,
-			count,
+			functions,
 		});
 
 		const options: SQL = parseQueryOptions(this.name, {

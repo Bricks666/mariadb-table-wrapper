@@ -17,12 +17,12 @@ const count: Count<AnyObject> = {
 describe("parseCount", () => {
 	test("simple count", () => {
 		expect(parseCount(table, { type: "count", body: "field" })).toBe(
-			`count(${table}.field)`
+			`COUNT(${table}.field)`
 		);
 	});
 	test("count with if", () => {
 		expect(parseCount(table, count)).toBe(
-			`count(IF((${table}.field = 15), ${table}.field, null))`
+			`COUNT(IF((${table}.field = 15), ${table}.field, null))`
 		);
 	});
 });

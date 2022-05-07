@@ -2,18 +2,14 @@ import {
 	ExcludeFields,
 	AnyObject,
 	IncludeFields,
-	Count,
 	SQL,
 	AssociateField,
 	MappedObject,
 	SelectQuery,
+	Functions,
 } from "@/types";
-import {
-	addPrefix,
-	isArray,
-	isEmpty,
-	/*  isObject, */ toString,
-} from "@/utils";
+import { fullField, isArray, isEmpty, toString } from "@/utils";
+import { parseFunctions } from "../functionParsers";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 	return toString(associate, " as ");
@@ -22,27 +18,34 @@ const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
 const parseIncludes = <T extends AnyObject>(
 	tableName: string,
 	includes: NonNullable<SelectQuery<T>["includes"]>
-): SQL[] => {
+): SQL => {
+	let include = null;
 	if (isArray(includes)) {
-		return includes.map((el) => {
-			const field = isArray(el) ? parseAs(el) : el.toString();
-			return addPrefix(field, tableName);
-		});
+		include = toString(
+			includes.map((el) => {
+				const field = isArray(el) ? parseAs(el) : el.toString();
+				return fullField(tableName, field);
+			})
+		);
 	} else {
 		const pairs = Object.entries(includes);
-		return pairs.map<SQL>((pair) => toString(parseIncludes(pair[0], pair[1])));
+		include = toString(
+			pairs.map<SQL>((pair) => parseIncludes(pair[0], pair[1]))
+		);
 	}
+
+	return include;
 };
 
 const parseExclude = (excludes: string[], table: string): string[] => {
-	return excludes.map((exclude) => addPrefix(exclude, table));
+	return excludes.map((exclude) => fullField(table, exclude));
 };
 
 const parseExcludes = <T extends AnyObject>(
 	tableName: string,
 	fields: string[],
 	excludes: NonNullable<SelectQuery<T>["excludes"]>
-): SQL[] => {
+): SQL => {
 	let excludesFields: string[] = [];
 
 	if (isArray<string[]>(excludes)) {
@@ -54,50 +57,32 @@ const parseExcludes = <T extends AnyObject>(
 		);
 	}
 
-	return Object.values(fields).filter(
-		(filed) => !excludesFields.includes(filed)
+	return toString(
+		Object.values(fields).filter((filed) => !excludesFields.includes(filed))
 	);
 };
 
-/* const parseCount = <T extends AnyObject>(
-	count: NonNullable<SelectQuery<T>["count"]>,
-	tableName: string
-) => {
-	const parsedCount: SQL[] = [];
-
-	if (count.type === "count") {
-		parsedCount.push(
-			...count.map((count) => {
-				let field: string | null = null;
-				let name: string | null = null;
-				if (isArray(count)) {
-					field = addPrefix(count[0] as string, tableName);
-					name = count[1];
-				} else if (isObject(count)) {
-					field = count.function as unknown as string;
-					name = count.name || null;
-				} else {
-					field = addPrefix(count as string, tableName);
-				}
-				const sql = `count(${field!.toString()})`;
-				return name ? parseAs([sql, name]) : sql;
-			})
-		);
+const parseFunction = <TF extends AnyObject>(
+	table: string,
+	functions: NonNullable<SelectedFieldsParams<TF>["functions"]>
+): SQL => {
+	let parsedFunctions = [];
+	if (isArray(functions)) {
+		parsedFunctions = functions.map((func) => parseFunctions(table, func));
 	} else {
-		const countPairs = Object.entries(count);
-		countPairs.forEach(([tableName, count]) =>
-			parsedCount.push(...parseCount(count, tableName))
+		parsedFunctions = Object.entries(functions).map(([table, functions]) =>
+			parseFunction(table, functions)
 		);
 	}
+	return toString(parsedFunctions);
+};
 
-	return parsedCount;
-}; */
 interface SelectedFieldsParams<TF extends AnyObject> {
 	tableName: string;
 	fields: string[];
 	excludes?: ExcludeFields<TF> | MappedObject<ExcludeFields<AnyObject>>;
 	includes?: IncludeFields<TF> | MappedObject<IncludeFields<AnyObject>>;
-	count?: Count<TF> | MappedObject<Count<AnyObject>>;
+	functions?: Array<Functions<TF>> | MappedObject<Array<Functions<TF>>>;
 }
 
 export const parseSelectedFields = <TF extends AnyObject>({
@@ -105,21 +90,21 @@ export const parseSelectedFields = <TF extends AnyObject>({
 	fields,
 	excludes,
 	includes,
-}: /* count, */
-SelectedFieldsParams<TF>) => {
+	functions,
+}: SelectedFieldsParams<TF>): SQL => {
 	const select: SQL[] = [];
 
 	if (excludes && !isEmpty(excludes)) {
-		select.push(...parseExcludes(tableName, fields, excludes));
+		select.push(parseExcludes(tableName, fields, excludes));
 	}
 
 	if (includes && !isEmpty(includes)) {
-		select.push(...parseIncludes(tableName, includes));
+		select.push(parseIncludes(tableName, includes));
 	}
-
-	/* 	if (count && !isEmpty(count)) {
-		select.push(...parseCount(count, tableName));
-	} */
+	/** TODO: Обновить функцию парсинга, заменить count на любую функцию */
+	if (functions && !isEmpty(functions)) {
+		select.push(parseFunction(tableName, functions));
+	}
 
 	return toString(select) || "*";
 };

@@ -1,6 +1,6 @@
 import { AnyObject, MappedObject } from "./Common";
 import { ValidSQLType } from "./Common";
-import { Count } from "./Functions";
+import { Functions } from "./Functions";
 import { FieldConfig, Reference, Expressions } from "./Table";
 
 export interface Query<TF extends AnyObject> {
@@ -21,7 +21,9 @@ export interface SelectQuery<TF extends AnyObject> extends Query<TF> {
 	readonly includes?:
 		| IncludeFields<TF>
 		| MappedObject<IncludeFields<AnyObject>>;
-	readonly count?: Count<TF> | MappedObject<Count<AnyObject>>;
+	readonly functions?:
+		| Array<Functions<TF>>
+		| MappedObject<Array<Functions<TF>>>;
 	readonly distinct?: boolean;
 }
 

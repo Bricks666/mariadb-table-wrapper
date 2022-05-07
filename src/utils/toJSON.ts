@@ -1,5 +1,5 @@
-export const toJSON = (values: (string | number)[]): string[] => {
-	return values
-		.filter((s) => Boolean(String(s)))
-		.map((el) => JSON.stringify(el));
+import { ValidSQLType } from "@/types";
+
+export const toJSON = (value: ValidSQLType): string => {
+	return String(value) ? JSON.stringify(value) : "";
 };

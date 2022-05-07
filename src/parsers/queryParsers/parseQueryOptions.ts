@@ -3,7 +3,7 @@ import {
 	undefinedToNull,
 	toString,
 	isArray,
-	addPrefix,
+	fullField,
 	isObject,
 	isExpressions,
 } from "@/utils";
@@ -58,7 +58,7 @@ const parseFilter = <T extends AnyObject>(
 
 	const conditions: SQL[] = keys.map((key) =>
 		parseExpressions(
-			addPrefix(key, tableName),
+			fullField(tableName, key),
 			filter[key] as Expressions<ValidSQLType>
 		)
 	);
@@ -92,12 +92,14 @@ const parseGroupBy = <TF extends AnyObject>(
 
 	if (isArray(groupBy)) {
 		grouping.push(
-			...groupBy.map((field) => addPrefix(field as string, tableName))
+			...groupBy.map((field) => fullField(tableName, field as string))
 		);
 	} else {
 		const tableAndGroup = Object.entries(groupBy);
 		tableAndGroup.forEach(([tableName, group]) => {
-			grouping.push(...group.map((field) => addPrefix(field, tableName)));
+			grouping.push(
+				...group.map((field) => fullField(tableName, field as string))
+			);
 		});
 	}
 

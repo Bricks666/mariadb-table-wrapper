@@ -1,14 +1,13 @@
 import { AnyObject, IfNull, SQL } from "@/types";
-import { toJSON, toString } from "@/utils";
+import { fullField, toJSON, toString } from "@/utils";
+import { parseFunction } from "./parseFunction";
 
 export const parseIfNull = <TF extends AnyObject>(
 	table: string,
-	ifNull: IfNull<TF>
+	func: IfNull<TF>
 ): SQL => {
-	const type: string = ifNull.type.toUpperCase();
-	const field: string = toString([table, ifNull.field], ".");
-	const fallback: string = toString(toJSON([ifNull.no]));
-	const name: string | undefined = ifNull.name;
-	const sql: SQL = `${type}(${field}, ${fallback})`;
-	return name ? toString([sql, name], " as ") : sql;
+	const field: string = fullField(table, func.field as string);
+	const fallback: string = toString([toJSON(func.no)]);
+	const body = toString([field, fallback]);
+	return parseFunction(func.type, body, func.name);
 };
