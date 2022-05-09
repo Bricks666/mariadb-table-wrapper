@@ -16,25 +16,24 @@ export const parseExpression = <T extends ValidSQLType>(
 		conditionParts.push("NOT");
 	}
 
+
 	/* Нужны наглядные приведения, потому что TS, он не считывает адекватно тип после abort, даже при гуарде */
+	abortInvalidParsing(operator, value);
+	conditionParts.push(field);
 	switch (operator) {
 		case "between": {
-			abortInvalidParsing(operator, value);
 			value = value as T[];
-			conditionParts.push(field, SQLOperator, toString(value, " AND "));
+			conditionParts.push(SQLOperator, toString(value, " AND "));
 			break;
 		}
 		case "in": {
-			abortInvalidParsing(operator, value);
-
 			value = value as T[];
-			conditionParts.push(field, SQLOperator, `(${parseSQLValues(value)})`);
+			conditionParts.push(SQLOperator, `(${parseSQLValues(value)})`);
 			break;
 		}
 		case "regExp":
 		case "like": {
-			abortInvalidParsing(operator, value);
-			conditionParts.push(field, SQLOperator, parseSQLValues([value]));
+			conditionParts.push(SQLOperator, parseSQLValues([value]));
 			break;
 		}
 		case "is null": {
@@ -42,13 +41,12 @@ export const parseExpression = <T extends ValidSQLType>(
 			break;
 		}
 		default: {
-			abortInvalidParsing(operator, value);
 			value = value as T;
 			const SQlValue =
 				typeof value === "string"
 					? parseSQLValues([value])
 					: (value as unknown as string);
-			conditionParts.push(field, SQLOperator, SQlValue);
+			conditionParts.push(SQLOperator, SQlValue);
 			break;
 		}
 	}
@@ -59,7 +57,7 @@ interface Validating {
 	readonly validator: (
 		value: ValidSQLType | ValidSQLType[] | undefined
 	) => boolean;
-	readonly error: ParamsError;
+	readonly error: ParamsError | null;
 }
 
 const likeValidating: Validating = {
@@ -95,6 +93,10 @@ const validatingMap: Partial<Record<string, Validating>> = {
 			"When use 'in' operator, value must be an array"
 		),
 		validator: (value) => isArray(value),
+	},
+	"is null": {
+		error: null,
+		validator: () => true,
 	},
 	regExp: likeValidating,
 	like: likeValidating,

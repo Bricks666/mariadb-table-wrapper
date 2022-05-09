@@ -11,7 +11,6 @@ import {
 	AnyObject,
 	Expressions,
 	MappedObject,
-	OrderDirection,
 	Query,
 	SQL,
 	TableFilters,
@@ -46,7 +45,7 @@ const parseFilters = <T extends AnyObject>(
 	if (isArray(filters)) {
 		return filters.map((filter) => parseFilter(tableName, filter));
 	} else {
-		return [parseFilter(tableName, filters as TableFilters<T>)];
+		return [parseFilter(tableName, filters)];
 	}
 };
 
@@ -74,11 +73,13 @@ const parseLimit = <TF extends AnyObject>({
 };
 
 const parseOrdering = <T extends AnyObject>(
+	table: string,
 	orderBy: NonNullable<Query<T>["orderBy"]>
 ) => {
 	const fieldAndDirection = Object.entries(orderBy);
-	const orderingConditions: string[] = fieldAndDirection.map((pair) =>
-		toString(pair as [string, OrderDirection], " ")
+	const orderingConditions: string[] = fieldAndDirection.map(
+		([field, direction]) =>
+			toString([fullField(table, field), direction || "ASC"], " ")
 	);
 
 	return `ORDER BY ${toString(orderingConditions, ",")}`;
@@ -125,7 +126,7 @@ export const parseQueryOptions = <TF extends AnyObject>(
 
 	if (orderBy && !isEmpty(orderBy)) {
 		const orderingWithNull = undefinedToNull<typeof orderBy>(orderBy);
-		order = parseOrdering(orderingWithNull);
+		order = parseOrdering(tableName, orderingWithNull);
 	}
 	if (limit && !isEmpty(limit)) {
 		page = parseLimit(limit);

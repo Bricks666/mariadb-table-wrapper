@@ -15,7 +15,7 @@ describe("parseCreateTable", () => {
 		};
 		const sql = parseCreateTable(config);
 
-		expect(sql).toBe("CREATE TABLE test-table(a BIGINT);");
+		expect(sql).toBe("test-table(a BIGINT)");
 	});
 	test("with exists", () => {
 		const config: TableConfig<AnyObject> = {
@@ -29,7 +29,7 @@ describe("parseCreateTable", () => {
 		};
 		const sql = parseCreateTable(config);
 
-		expect(sql).toBe("CREATE TABLE IF NOT EXISTS test-table(a BIGINT);");
+		expect(sql).toBe("IF NOT EXISTS test-table(a BIGINT)");
 	});
 	test("with primary key", () => {
 		const config: TableConfig<AnyObject> = {
@@ -45,7 +45,7 @@ describe("parseCreateTable", () => {
 		const sql = parseCreateTable(config);
 
 		expect(sql).toBe(
-			"CREATE TABLE IF NOT EXISTS test-table(a BIGINT, CONSTRAINT test-table_pk PRIMARY KEY(a));"
+			"IF NOT EXISTS test-table(a BIGINT, CONSTRAINT test-table_pk PRIMARY KEY(a))"
 		);
 	});
 	test("several fields with primary key", () => {
@@ -65,7 +65,7 @@ describe("parseCreateTable", () => {
 		const sql = parseCreateTable(config);
 
 		expect(sql).toBe(
-			"CREATE TABLE IF NOT EXISTS test-table(a BIGINT, b BOOL, CONSTRAINT test-table_pk PRIMARY KEY(a));"
+			"IF NOT EXISTS test-table(a BIGINT, b BOOL, CONSTRAINT test-table_pk PRIMARY KEY(a))"
 		);
 	});
 	test("several fields with several primary key", () => {
@@ -86,7 +86,7 @@ describe("parseCreateTable", () => {
 		const sql = parseCreateTable(config);
 
 		expect(sql).toBe(
-			"CREATE TABLE IF NOT EXISTS test-table(a BIGINT, b BOOL, CONSTRAINT test-table_pk PRIMARY KEY(a, b));"
+			"IF NOT EXISTS test-table(a BIGINT, b BOOL, CONSTRAINT test-table_pk PRIMARY KEY(a, b))"
 		);
 	});
 	test("with foreign key", () => {
@@ -108,7 +108,7 @@ describe("parseCreateTable", () => {
 		const sql = parseCreateTable(config);
 
 		expect(sql).toBe(
-			"CREATE TABLE IF NOT EXISTS test-table(a BIGINT, CONSTRAINT test-table_a_fk FOREIGN KEY (a) REFERENCES a (a) ON DELETE CASCADE ON UPDATE CASCADE);"
+			"IF NOT EXISTS test-table(a BIGINT, CONSTRAINT test-table_a_fk FOREIGN KEY (a) REFERENCES a (a) ON DELETE CASCADE ON UPDATE CASCADE)"
 		);
 	});
 });

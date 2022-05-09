@@ -85,6 +85,6 @@ describe("parseAlter", () => {
 			type: "DROP PRIMARY KEY",
 		});
 
-		expect(sql).toEqual("DROP PRIMARY KEY ");
+		expect(sql).toEqual("DROP PRIMARY KEY");
 	});
 });

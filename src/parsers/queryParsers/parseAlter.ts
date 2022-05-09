@@ -1,4 +1,5 @@
 import { AlterTableRequest, AnyObject, ValidSQLType } from "@/types";
+import { toString } from "@/utils";
 import { parseConstraint } from "@/utils/parseConstraint";
 import { parseField } from "../tableParsers/parseField";
 import { parseForeignKey } from "../tableParsers/parseForeignKey";
@@ -53,5 +54,5 @@ export const parseAlter = <
 		}
 	}
 
-	return `${params.type} ${options}`;
+	return toString([params.type, options], " ");
 };

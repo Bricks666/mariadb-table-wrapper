@@ -1,6 +1,6 @@
 {
 	"name": "mariadb-table-wrapper",
-	"version": "1.7.12",
+	"version": "1.7.13-0",
 	"description": "wrapper over standard mariadb library",
 	"main": "./dist/index.js",
 	"module": "./dist/index.es.js",
@@ -43,6 +43,7 @@
 		"prepare": "husky install"
 	},
 	"dependencies": {
+		"joi": "^17.6.0",
 		"mariadb": "^3.0.0"
 	},
 	"devDependencies": {

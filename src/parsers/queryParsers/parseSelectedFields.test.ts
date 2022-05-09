@@ -1,4 +1,4 @@
-import { AnyObject, Count, IncludeFields } from "@/types";
+import { AnyObject, Functions, IncludeFields } from "@/types";
 import { fullField } from "@/utils";
 import { parseSelectedFields } from "./parseSelectedFields";
 
@@ -16,22 +16,11 @@ const excludesArray = ["a"];
 const excludesObject = {
 	[tableName]: ["a"],
 };
-const count: Count<AnyObject> = {
+const count: Functions<AnyObject> = {
 	type: "count",
 	body: "a",
 	name: "h",
 };
-// const objectCount: Count<AnyObject> = [
-// 	{
-// 		field: "*",
-// 		expressions: {
-// 			operator: "=",
-// 			value: 15,
-// 		},
-// 		name: "h",
-// 	},
-// ];
-
 describe("parseSelectedFields", () => {
 	test("all fields", () => {
 		const sql = parseSelectedFields({ tableName, fields });
@@ -84,37 +73,8 @@ describe("parseSelectedFields", () => {
 		expect(sql).toBe(`${tableName}.b, ${tableName}.c`);
 	});
 	test("count", () => {
-		const sql = parseSelectedFields({ tableName, fields, functions: [count] });
+		const sql = parseSelectedFields({ tableName, fields, includes: [count] });
 
 		expect(sql).toBe(`COUNT(${tableName}.a) as h`);
 	});
-	/* test("object count", () => {
-		const sql = parseSelectedFields({ tableName, fields, count: objectCount });
-
-		expect(sql).toBe(`count((${tableName}.* = 15)) as h`);
-	}); */
-	/* test("count and includes", () => {
-		const sql = parseSelectedFields({
-			tableName,
-			fields,
-			count,
-			includes: includesArray,
-		});
-
-		expect(sql).toBe(
-			`${tableName}.a, ${tableName}.b, count(${tableName}.*) as h`
-		);
-	});
-	test("count and excludes", () => {
-		const sql = parseSelectedFields({
-			tableName,
-			fields,
-			count,
-			excludes: excludesArray,
-		});
-
-		expect(sql).toBe(
-			`${tableName}.b, ${tableName}.c, count(${tableName}.*) as h`
-		);
-	}); */
 });

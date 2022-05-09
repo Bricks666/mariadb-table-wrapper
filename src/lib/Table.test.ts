@@ -1,19 +1,12 @@
 /* eslint-disable sonarjs/no-duplicate-string */
-
 import { CONFIGS_OBJECT } from "@/config";
 import {
-	parseAlter,
-	parseQueryOptions,
-	parseSetParams,
-	parseSQLKeys,
-	parseSQLValues,
-	parseSelectedFields,
-	parseJoinTables,
-} from "@/parsers/queryParsers";
-import { parseCreateTable } from "@/parsers/tableParsers";
-import { TableConfig, AnyObject, AlterTableRequest } from "@/types";
+	TableConfig,
+	AnyObject,
+	AlterTableRequest,
+	SelectQuery,
+} from "@/types";
 import { Connection } from "mariadb";
-import { toString, getJoinedFields } from "@/utils";
 import { Table } from "./Table";
 /**
  * TODO: Написать нормальные тесты, что будут проверять параметры, вызываемый при запросе
@@ -25,16 +18,20 @@ const connection = {
 	query,
 } as unknown as Connection;
 
-jest.mock("@/parsers/tableParsers");
-jest.mock("@/parsers/queryParsers");
-jest.mock("@/utils/toString");
-jest.mock("@/utils/getJoinedFields", () => ({
-	getJoinedFields: jest.fn(() => []),
-}));
 const config: TableConfig<AnyObject> = {
-	fields: {},
 	table: "a",
-	foreignKeys: {},
+	fields: {
+		field: {
+			type: "BIGINT",
+			isNotNull: true,
+		},
+	},
+	foreignKeys: {
+		field: {
+			field: "fieldA",
+			tableName: "tableA",
+		},
+	},
 	safeCreating: true,
 };
 
@@ -47,10 +44,10 @@ beforeEach(() => {
 describe("Table", () => {
 	describe("constructor", () => {
 		test("save need properties", () => {
-			expect("name" in table).toBeTruthy();
-			expect("fields" in table).toBeTruthy();
-			expect("foreignKeys" in table).toBeTruthy();
-			expect("safeCreating" in table).toBeTruthy();
+			expect(table.name).toBe(config.table);
+			expect(table.fields).toBe(config.fields);
+			expect(table.foreignKeys).toBe(config.foreignKeys);
+			expect(table.safeCreating).toBe(config.safeCreating);
 			expect((table as AnyObject).connection).toBeNull();
 		});
 		test("accumulateConfig", () => {
@@ -62,35 +59,38 @@ describe("Table", () => {
 	});
 	describe("init()", () => {
 		beforeEach(async () => {
+			Table.prototype.request = jest.fn();
 			await table.init(connection);
-		});
-		test("call parseCreateTable", async () => {
-			expect(parseCreateTable).toHaveBeenCalledTimes(1);
 		});
 		test("save connection", async () => {
 			expect((table as AnyObject).connection).toBe(connection);
 		});
 		test("call query", async () => {
-			expect(query).toHaveBeenCalledTimes(1);
+			expect(table.request).toHaveBeenCalledTimes(1);
+			expect(table.request).toHaveBeenCalledWith(
+				"CREATE TABLE",
+				`IF NOT EXISTS ${config.table}(field BIGINT NOT NULL, CONSTRAINT a_field_fk FOREIGN KEY (field) REFERENCES tableA (fieldA) ON DELETE CASCADE ON UPDATE CASCADE)`
+			);
 		});
 	});
 	describe("insert()", () => {
+		const insert = {
+			field: 15,
+		};
 		beforeEach(async () => {
 			await table.init(connection);
 		});
-		test("parseSQLKeys()", async () => {
-			await table.insert({});
-			expect(parseSQLKeys).toHaveBeenCalledTimes(1);
-		});
-		test("parseSQLValues", async () => {
-			await table.insert({});
-			expect(parseSQLValues).toHaveBeenCalledTimes(1);
-			expect(toString).toHaveBeenCalledTimes(1);
-		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
-			await table.insert({});
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
+			Table.prototype.request = jest.fn();
+			await table.insert(insert);
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
+				"INSERT",
+				config.table,
+				"(field)",
+				"VALUES",
+				`(${insert.field})`
+			);
 		});
 	});
 	describe("describe()", () => {
@@ -98,10 +98,10 @@ describe("Table", () => {
 			await table.init(connection);
 		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
+			Table.prototype.request = jest.fn();
 			await table.describe();
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
-			expect((Table.prototype as AnyObject).request).toHaveBeenLastCalledWith(
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenLastCalledWith(
 				"DESC",
 				config.table
 			);
@@ -112,10 +112,10 @@ describe("Table", () => {
 			await table.init(connection);
 		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
+			Table.prototype.request = jest.fn();
 			await table.drop();
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledWith(
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
 				"DROP TABLE",
 				config.table
 			);
@@ -126,10 +126,10 @@ describe("Table", () => {
 			await table.init(connection);
 		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
+			Table.prototype.request = jest.fn();
 			await table.truncate();
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledWith(
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
 				"TRUNCATE TABLE",
 				config.table
 			);
@@ -142,14 +142,15 @@ describe("Table", () => {
 		beforeEach(async () => {
 			await table.init(connection);
 		});
-		test("parseAlter()", async () => {
-			await table.alter(alter);
-			expect(parseAlter).toHaveBeenCalledTimes(1);
-		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
+			Table.prototype.request = jest.fn();
 			await table.alter(alter);
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
+				"ALTER TABLE",
+				config.table,
+				"DROP PRIMARY KEY"
+			);
 		});
 	});
 	describe("update()", () => {
@@ -157,68 +158,97 @@ describe("Table", () => {
 		beforeEach(async () => {
 			await table.init(connection);
 		});
-		test("parseSetParams()", async () => {
-			await table.update(newValue);
-			expect(parseSetParams).toHaveBeenCalledTimes(1);
-		});
-		test("parseQueryOptions()", async () => {
-			await table.update(newValue, {});
-			expect(parseQueryOptions).toHaveBeenCalledTimes(1);
-		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
+			Table.prototype.request = jest.fn();
 			await table.update(newValue);
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
+				"UPDATE",
+				config.table,
+				"SET",
+				"a = \"a\"",
+				""
+			);
 		});
 	});
 	describe("delete()", () => {
 		beforeEach(async () => {
 			await table.init(connection);
 		});
-		test("parseQueryOptions()", async () => {
-			await table.delete({});
-			expect(parseQueryOptions).toHaveBeenCalledTimes(1);
-		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
+			Table.prototype.request = jest.fn();
 			await table.delete({});
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
+				"DELETE FROM",
+				config.table,
+				""
+			);
 		});
 	});
 	describe("select()", () => {
+		const select: SelectQuery<AnyObject> = {
+			distinct: true,
+			filters: {
+				field: {
+					operator: "=",
+					value: 15,
+				},
+			},
+			orderBy: {
+				field: "ASC",
+			},
+		};
 		beforeEach(async () => {
 			await table.init(connection);
 		});
-		test("parseSelectedFields()", async () => {
-			await table.select({});
-			expect(parseSelectedFields).toHaveBeenCalledTimes(1);
-		});
-		test("parseQueryOptions()", async () => {
-			await table.select({});
-			expect(parseQueryOptions).toHaveBeenCalledTimes(1);
-		});
-		test("parseJoinTables()", async () => {
-			await table.select({ joinedTable: { enable: true } });
-			expect(parseJoinTables).toHaveBeenCalledTimes(1);
-		});
-		test("getJoinedFields()", async () => {
-			await table.select({ joinedTable: { enable: true } });
-			expect(getJoinedFields).toHaveBeenCalledTimes(1);
-		});
 		test("was request", async () => {
-			(Table.prototype as AnyObject).request = jest.fn();
-			await table.select({});
-			expect((Table.prototype as AnyObject).request).toHaveBeenCalledTimes(1);
+			Table.prototype.request = jest.fn();
+			await table.select(select);
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
+				"SELECT",
+				"DISTINCT",
+				"*",
+				"FROM",
+				config.table,
+				"",
+				`WHERE (${config.table}.field = 15) ORDER BY ${config.table}.field ASC LIMIT 0,100`
+			);
 		});
 	});
 	describe("selectOne()", () => {
+		const select: SelectQuery<AnyObject> = {
+			filters: {
+				field: [
+					{
+						operator: "=",
+						value: 15,
+					},
+					{
+						operator: "!=",
+						value: 15,
+					},
+				],
+			},
+			includes: ["*", { type: "max", field: "field", distinct: true }],
+		};
 		beforeEach(async () => {
 			await table.init(connection);
 		});
 		test("was select", async () => {
-			Table.prototype.select = jest.fn(async () => []);
-			await table.selectOne({});
-			expect(Table.prototype.select).toHaveBeenCalledTimes(1);
+			Table.prototype.request = jest.fn(async () => []);
+			await table.selectOne(select);
+			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
+			expect(Table.prototype.request).toHaveBeenCalledWith(
+				"SELECT",
+				"",
+				`${config.table}.*, MAX(DISTINCT ${config.table}.field)`,
+				"FROM",
+				config.table,
+				"",
+				`WHERE (${config.table}.field = 15 AND ${config.table}.field != 15) LIMIT 0,1`
+			);
 		});
 	});
 	describe("disconnect()", () => {

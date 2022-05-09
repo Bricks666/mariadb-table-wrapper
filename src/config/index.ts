@@ -1,3 +1,3 @@
-import { AnyObject, MappedObject, TableConfig } from "..";
+import { AnyObject, MappedObject, TableConfig } from "@/types";
 
-export const CONFIGS_OBJECT: Partial<MappedObject<TableConfig<AnyObject>>> = {};
+export const CONFIGS_OBJECT: MappedObject<TableConfig<AnyObject>> = {};

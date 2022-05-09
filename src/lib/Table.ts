@@ -34,15 +34,15 @@ import { parseCreateTable } from "@/parsers/tableParsers";
 
 export class Table<TF extends AnyObject> {
 	private connection: Connection | null;
-	private readonly name: string;
-	private readonly fields: Fields<TF>;
-	private readonly foreignKeys: ForeignKeys<TF> | undefined;
-	private readonly safeCreating: boolean;
+	readonly name: string;
+	readonly fields: Fields<TF>;
+	readonly foreignKeys: ForeignKeys<TF>;
+	readonly safeCreating: boolean;
 
 	public constructor(config: TableConfig<TF>) {
 		this.name = config.table;
 		this.fields = config.fields;
-		this.foreignKeys = config.foreignKeys;
+		this.foreignKeys = config.foreignKeys || {};
 		this.safeCreating = !!config.safeCreating;
 
 		this.connection = null;
@@ -59,7 +59,7 @@ export class Table<TF extends AnyObject> {
 			table: this.name,
 			safeCreating: this.safeCreating,
 		});
-		await this.connection.query(intiSQL);
+		await this.request("CREATE TABLE", intiSQL);
 	}
 
 	public async insert<Request extends Partial<TF> = Partial<TF>>(
@@ -91,7 +91,6 @@ export class Table<TF extends AnyObject> {
 			orderBy,
 			joinedTable,
 			groupBy,
-			functions,
 			distinct,
 			limit = { page: 1, countOnPage: 100 },
 		} = config;
@@ -105,13 +104,13 @@ export class Table<TF extends AnyObject> {
 		if (joinedTable?.enable) {
 			joinSQL = parseJoinTables(
 				this.name,
-				this.foreignKeys || {},
+				this.foreignKeys,
 				joinedTable.joinTable,
 				joinedTable.recurseInclude
 			);
 			fields.push(
 				...getJoinedFields(
-					this.foreignKeys || {},
+					this.foreignKeys,
 					joinedTable.joinTable,
 					joinedTable.recurseInclude
 				)
@@ -123,7 +122,6 @@ export class Table<TF extends AnyObject> {
 			fields,
 			excludes,
 			includes,
-			functions,
 		});
 
 		const options: SQL = parseQueryOptions(this.name, {
@@ -195,7 +193,7 @@ export class Table<TF extends AnyObject> {
 	}
 
 	public async describe() {
-		return await this.request<Description<TF>[]>("DESC", this.name);
+		return await this.request<Description<TF>>("DESC", this.name);
 	}
 
 	public async alter<T extends ValidSQLType = ValidSQLType>(
@@ -213,10 +211,10 @@ export class Table<TF extends AnyObject> {
 		this.connection = null;
 	}
 
-	private async request<R = unknown>(...options: string[]): Promise<R[]> {
+	public async request<R = unknown>(...options: string[]): Promise<R[]> {
 		return Array.from(
 			await this.connection?.query({
-				sql: `${options.join(" ")};`,
+				sql: toString(options, " ") + ";",
 				insertIdAsNumber: true,
 				bigIntAsNumber: true,
 			})

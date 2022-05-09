@@ -6,9 +6,8 @@ import {
 	AssociateField,
 	MappedObject,
 	SelectQuery,
-	Functions,
 } from "@/types";
-import { fullField, isArray, isEmpty, toString } from "@/utils";
+import { fullField, isArray, isEmpty, isObject, toString } from "@/utils";
 import { parseFunctions } from "../functionParsers";
 
 const parseAs = <T extends AnyObject>(associate: AssociateField<T>): SQL => {
@@ -23,8 +22,11 @@ const parseIncludes = <T extends AnyObject>(
 	if (isArray(includes)) {
 		include = toString(
 			includes.map((el) => {
-				const field = isArray(el) ? parseAs(el) : el.toString();
-				return fullField(tableName, field);
+				return isArray(el)
+					? fullField(tableName, parseAs(el))
+					: isObject(el)
+						? parseFunctions(tableName, el)
+						: fullField(tableName, el.toString());
 			})
 		);
 	} else {
@@ -62,27 +64,11 @@ const parseExcludes = <T extends AnyObject>(
 	);
 };
 
-const parseFunction = <TF extends AnyObject>(
-	table: string,
-	functions: NonNullable<SelectedFieldsParams<TF>["functions"]>
-): SQL => {
-	let parsedFunctions = [];
-	if (isArray(functions)) {
-		parsedFunctions = functions.map((func) => parseFunctions(table, func));
-	} else {
-		parsedFunctions = Object.entries(functions).map(([table, functions]) =>
-			parseFunction(table, functions)
-		);
-	}
-	return toString(parsedFunctions);
-};
-
 interface SelectedFieldsParams<TF extends AnyObject> {
 	tableName: string;
 	fields: string[];
 	excludes?: ExcludeFields<TF> | MappedObject<ExcludeFields<AnyObject>>;
 	includes?: IncludeFields<TF> | MappedObject<IncludeFields<AnyObject>>;
-	functions?: Array<Functions<TF>> | MappedObject<Array<Functions<TF>>>;
 }
 
 export const parseSelectedFields = <TF extends AnyObject>({
@@ -90,7 +76,6 @@ export const parseSelectedFields = <TF extends AnyObject>({
 	fields,
 	excludes,
 	includes,
-	functions,
 }: SelectedFieldsParams<TF>): SQL => {
 	const select: SQL[] = [];
 
@@ -100,10 +85,6 @@ export const parseSelectedFields = <TF extends AnyObject>({
 
 	if (includes && !isEmpty(includes)) {
 		select.push(parseIncludes(tableName, includes));
-	}
-	/** TODO: Обновить функцию парсинга, заменить count на любую функцию */
-	if (functions && !isEmpty(functions)) {
-		select.push(parseFunction(tableName, functions));
 	}
 
 	return toString(select) || "*";

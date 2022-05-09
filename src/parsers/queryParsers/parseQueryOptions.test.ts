@@ -70,7 +70,7 @@ describe("parseQueryOptions", () => {
 	});
 	test("parse order", () => {
 		const sql = parseQueryOptions(tableName, { orderBy });
-		expect(sql).toBe("ORDER BY a ASC,b DESC");
+		expect(sql).toBe(`ORDER BY ${tableName}.a ASC,${tableName}.b DESC`);
 	});
 	test("parse array groupBy", () => {
 		const sql = parseQueryOptions(tableName, { groupBy: groupByArray });
@@ -102,7 +102,9 @@ describe("parseQueryOptions", () => {
 	});
 	test("parse where and order", () => {
 		const sql = parseQueryOptions(tableName, { filters: whereSimple, orderBy });
-		expect(sql).toBe(`WHERE (${tableName}.a = 15) ORDER BY a ASC,b DESC`);
+		expect(sql).toBe(
+			`WHERE (${tableName}.a = 15) ORDER BY ${tableName}.a ASC,${tableName}.b DESC`
+		);
 	});
 	test("parse where and limit", () => {
 		const sql = parseQueryOptions(tableName, { filters: whereSimple, limit });
@@ -123,7 +125,7 @@ describe("parseQueryOptions", () => {
 			orderBy,
 		});
 		expect(sql).toBe(
-			`GROUP BY ${tableName}.a, ${tableName}.b ORDER BY a ASC,b DESC`
+			`GROUP BY ${tableName}.a, ${tableName}.b ORDER BY ${tableName}.a ASC,${tableName}.b DESC`
 		);
 	});
 	test("parse groupBy and limit", () => {
@@ -132,7 +134,9 @@ describe("parseQueryOptions", () => {
 	});
 	test("parse limit and order", () => {
 		const sql = parseQueryOptions(tableName, { limit, orderBy });
-		expect(sql).toBe("ORDER BY a ASC,b DESC LIMIT 0,2");
+		expect(sql).toBe(
+			`ORDER BY ${tableName}.a ASC,${tableName}.b DESC LIMIT 0,2`
+		);
 	});
 	test("parse all options", () => {
 		const sql = parseQueryOptions(tableName, {
@@ -142,7 +146,7 @@ describe("parseQueryOptions", () => {
 			groupBy: groupByArray,
 		});
 		expect(sql).toBe(
-			`WHERE (${tableName}.a = 15) GROUP BY ${tableName}.a, ${tableName}.b ORDER BY a ASC,b DESC LIMIT 0,2`
+			`WHERE (${tableName}.a = 15) GROUP BY ${tableName}.a, ${tableName}.b ORDER BY ${tableName}.a ASC,${tableName}.b DESC LIMIT 0,2`
 		);
 	});
 });

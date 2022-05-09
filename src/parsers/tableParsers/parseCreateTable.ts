@@ -35,6 +35,6 @@ export const parseCreateTable = <TF extends MappedObject<string>>({
 		parsedFields,
 		primaryKey,
 		parsedForeignKeys,
-	])});`;
-	return toString(["CREATE TABLE", exists, tableConfig], " ");
+	])})`;
+	return toString([exists, tableConfig], " ");
 };

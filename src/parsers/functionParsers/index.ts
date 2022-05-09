@@ -8,5 +8,5 @@ export { parseAvg } from "./parseAvg";
 export { parseCoalesce } from "./parseCoalesce";
 export { parseFunction } from "./parseFunction";
 export { parseMax } from "./parseMax";
-export {} from "./parseMin";
-export {} from "./parseSum";
+export { parseMin } from "./parseMin";
+export { parseSum } from "./parseSum";
