@@ -14,21 +14,18 @@ import {
 } from "@/types";
 import {
 	accumulateConfigs,
-	fullField,
-	getJoinedFields,
 	isArray,
 	isEmpty,
 	undefinedToNull,
 	toString,
 } from "@/utils";
 import {
-	parseSelectedFields,
 	parseQueryOptions,
-	parseJoinTables,
 	parseSQLKeys,
 	parseSetParams,
 	parseAlter,
 	parseSQLValues,
+	parseSelect,
 } from "@/parsers/queryParsers";
 import { parseCreateTable } from "@/parsers/tableParsers";
 
@@ -84,62 +81,13 @@ export class Table<TF extends AnyObject> {
 	public async select<Response = TF>(
 		config: SelectQuery<TF> = {}
 	): Promise<Response[]> {
-		const {
-			filters,
-			excludes,
-			includes,
-			orderBy,
-			joinedTable,
-			groupBy,
-			distinct,
-			limit = { page: 1, countOnPage: 100 },
-		} = config;
-		/* TODO:  Добавить проверки входных параметров */
-		const fields: string[] = Object.keys(this.fields).map((field) =>
-			fullField(this.name, field)
-		);
-
-		let joinSQL: SQL = "";
-
-		if (joinedTable?.enable) {
-			joinSQL = parseJoinTables(
-				this.name,
-				this.foreignKeys,
-				joinedTable.joinTable,
-				joinedTable.recurseInclude
-			);
-			fields.push(
-				...getJoinedFields(
-					this.foreignKeys,
-					joinedTable.joinTable,
-					joinedTable.recurseInclude
-				)
-			);
-		}
-
-		const select: SQL = parseSelectedFields({
-			tableName: this.name,
-			fields,
-			excludes,
-			includes,
+		const select = parseSelect({
+			table: this.name,
+			query: config,
+			tableFields: this.fields,
+			foreignKeys: this.foreignKeys,
 		});
-
-		const options: SQL = parseQueryOptions(this.name, {
-			filters,
-			groupBy,
-			orderBy,
-			limit,
-		});
-
-		return await this.request(
-			"SELECT",
-			distinct ? "DISTINCT" : "",
-			select || "*",
-			"FROM",
-			this.name,
-			joinSQL,
-			options
-		);
+		return await this.request(select);
 	}
 
 	public async selectOne<Response = TF>(

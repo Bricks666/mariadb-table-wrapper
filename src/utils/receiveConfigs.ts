@@ -1,8 +1,8 @@
 import { AnyObject, TableConfig } from "@/types";
 import { CONFIGS_OBJECT } from "@/config";
 
-export const receiveConfigs = (
+export const receiveConfigs = <TF extends AnyObject = AnyObject>(
 	tableName: string
-): TableConfig<AnyObject> | undefined => {
-	return CONFIGS_OBJECT[tableName];
+): TableConfig<TF> | undefined => {
+	return CONFIGS_OBJECT[tableName] as TableConfig<TF>;
 };

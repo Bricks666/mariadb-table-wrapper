@@ -1,5 +1,5 @@
 import { ParamsError } from "@/lib";
-import { Expression, ValidSQLType } from "@/types";
+import { Expression } from "@/types";
 import { parseExpression } from "./parseExpression";
 
 describe("parseExpression", () => {
@@ -18,7 +18,7 @@ describe("parseExpression", () => {
 		});
 		test("error", () => {
 			expect(() =>
-				parseExpression("a", { operator: "!=" } as Expression<ValidSQLType>)
+				parseExpression("a", { operator: "!=" } as Expression)
 			).toThrowError(
 				new ParamsError(
 					"createTable",
@@ -71,7 +71,7 @@ describe("parseExpression", () => {
 		});
 		test("error", () => {
 			expect(() =>
-				parseExpression("a", { operator: "in" } as Expression<ValidSQLType>)
+				parseExpression("a", { operator: "in" } as Expression)
 			).toThrowError(
 				new ParamsError(
 					"createTable",
@@ -96,7 +96,7 @@ describe("parseExpression", () => {
 		});
 		test("error", () => {
 			expect(() =>
-				parseExpression("a", { operator: "like" } as Expression<ValidSQLType>)
+				parseExpression("a", { operator: "like" } as Expression)
 			).toThrowError(
 				new ParamsError(
 					"createTable",
@@ -121,7 +121,7 @@ describe("parseExpression", () => {
 		});
 		test("error", () => {
 			expect(() =>
-				parseExpression("a", { operator: "regExp" } as Expression<ValidSQLType>)
+				parseExpression("a", { operator: "regExp" } as Expression)
 			).toThrowError(
 				new ParamsError(
 					"createTable",

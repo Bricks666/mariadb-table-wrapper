@@ -1,11 +1,8 @@
-import { Expressions, Expression, SQL, ValidSQLType } from "@/types";
+import { Expressions, Expression, SQL } from "@/types";
 import { isArray, toString } from "@/utils";
 import { parseExpression } from "./parseExpression";
 
-export const parseExpressions = <T extends ValidSQLType>(
-	field: string,
-	check: Expressions<T>
-): SQL => {
+export const parseExpressions = (field: string, check: Expressions): SQL => {
 	let condition: SQL = "";
 
 	if (isArray(check)) {
@@ -17,7 +14,7 @@ export const parseExpressions = <T extends ValidSQLType>(
 		} else {
 			condition = toString(
 				check.map((expression) =>
-					parseExpression(field, expression as Expression<T>)
+					parseExpression(field, expression as Expression)
 				),
 				" AND "
 			);

@@ -1,12 +1,8 @@
-import { Expression, ValidSQLType } from "@/types";
+import { Expression } from "@/types";
 
 /**
  * TODO: Add operator check
  */
-export const isExpression = <T extends ValidSQLType>(
-	value: unknown
-): value is Expression<T> => {
-	return !!(
-		(value as Expression<T>)?.value && (value as Expression<T>)?.operator
-	);
+export const isExpression = (value: unknown): value is Expression => {
+	return !!((value as Expression)?.value && (value as Expression)?.operator);
 };

@@ -1,7 +1,8 @@
 import { AnyObject, MappedObject } from "./Common";
 import { ValidSQLType } from "./Common";
+import { Expressions } from "./Expressions";
 import { Functions } from "./Functions";
-import { FieldConfig, Reference, Expressions } from "./Table";
+import { FieldConfig, Reference } from "./Table";
 
 export interface Query<TF extends AnyObject> {
 	readonly filters?:
@@ -25,7 +26,7 @@ export interface SelectQuery<TF extends AnyObject> extends Query<TF> {
 }
 
 export type TableFilters<TF extends AnyObject> = {
-	readonly [key in keyof TF]?: Expressions<TF[key]>;
+	readonly [key in keyof TF]?: Expressions;
 };
 
 export interface JoinTable {
@@ -131,4 +132,8 @@ export interface Description<TF extends AnyObject> {
 	readonly Key: "PRI" | "";
 	readonly Default: ValidSQLType | null;
 	readonly Extra: string;
+}
+
+export interface SubQuery extends SelectQuery<AnyObject> {
+	readonly table: string;
 }

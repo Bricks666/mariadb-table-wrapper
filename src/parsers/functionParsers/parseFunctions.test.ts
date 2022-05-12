@@ -4,7 +4,6 @@ import {
 	Count,
 	IfNull,
 	If,
-	ValidSQLType,
 	Expressions,
 	Max,
 	Min,
@@ -25,7 +24,7 @@ import { parseSum } from "./parseSum";
 
 const table = "test-table";
 const field = "field";
-const expression: Expressions<ValidSQLType> = {
+const expression: Expressions = {
 	operator: "!=",
 	value: 15,
 };

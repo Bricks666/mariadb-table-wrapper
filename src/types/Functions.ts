@@ -1,5 +1,5 @@
 import { AnyObject, ValidSQLType } from "./Common";
-import { Expressions } from "./Table";
+import { Expressions } from "./Expressions";
 
 export type AggregateFunctionNames = "count" | "max" | "min" | "avg" | "sum";
 export type LogicFunctionNames = "if" | "case" | "ifnull" | "coalesce";
@@ -50,7 +50,7 @@ export interface IfNull<TF extends AnyObject> extends Function<"ifnull"> {
 
 export interface If<TF extends AnyObject> extends Function<"if"> {
 	readonly field: keyof TF;
-	readonly condition: Expressions<TF[this["field"]]>;
+	readonly condition: Expressions;
 	readonly yes?: ValidSQLType;
 	readonly no?: ValidSQLType;
 }
@@ -59,7 +59,7 @@ export interface If<TF extends AnyObject> extends Function<"if"> {
 export interface CaseExpression {
 	readonly table: string;
 	readonly field: string;
-	readonly expression: Expressions<ValidSQLType>;
+	readonly expression: Expressions;
 	readonly value: ValidSQLType;
 }
 

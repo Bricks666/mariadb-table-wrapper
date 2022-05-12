@@ -14,7 +14,6 @@ import {
 	Query,
 	SQL,
 	TableFilters,
-	ValidSQLType,
 } from "@/types";
 import { parseExpressions } from "../tableParsers";
 
@@ -27,11 +26,11 @@ const parseWhere = <T extends AnyObject>(
 		Object.entries(
 			filters as MappedObject<TableFilters<T> | TableFilters<T>[]>
 		).forEach(([tableName, filters]) => {
-			SQLFilters.push(...parseFilters(tableName, filters));
+			SQLFilters.push(parseFilters(tableName, filters));
 		});
 	} else {
 		SQLFilters.push(
-			...parseFilters(tableName, filters as TableFilters<T> | TableFilters<T>[])
+			parseFilters(tableName, filters as TableFilters<T> | TableFilters<T>[])
 		);
 	}
 
@@ -41,11 +40,14 @@ const parseWhere = <T extends AnyObject>(
 const parseFilters = <T extends AnyObject>(
 	tableName: string,
 	filters: TableFilters<T> | TableFilters<T>[]
-) => {
+): SQL => {
 	if (isArray(filters)) {
-		return filters.map((filter) => parseFilter(tableName, filter));
+		return toString(
+			filters.map((filter) => parseFilter(tableName, filter)),
+			" OR "
+		);
 	} else {
-		return [parseFilter(tableName, filters)];
+		return parseFilter(tableName, filters);
 	}
 };
 
@@ -54,12 +56,8 @@ const parseFilter = <T extends AnyObject>(
 	filter: TableFilters<T>
 ) => {
 	const keys = Object.keys(filter);
-
 	const conditions: SQL[] = keys.map((key) =>
-		parseExpressions(
-			fullField(tableName, key),
-			filter[key] as Expressions<ValidSQLType>
-		)
+		parseExpressions(fullField(tableName, key), filter[key] as Expressions)
 	);
 	return toString(conditions, " AND ");
 };

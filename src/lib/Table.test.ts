@@ -207,13 +207,7 @@ describe("Table", () => {
 			await table.select(select);
 			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
 			expect(Table.prototype.request).toHaveBeenCalledWith(
-				"SELECT",
-				"DISTINCT",
-				"*",
-				"FROM",
-				config.table,
-				"",
-				`WHERE (${config.table}.field = 15) ORDER BY ${config.table}.field ASC LIMIT 0,100`
+				`SELECT DISTINCT * FROM ${config.table} WHERE (${config.table}.field = 15) ORDER BY ${config.table}.field ASC`
 			);
 		});
 	});
@@ -241,13 +235,7 @@ describe("Table", () => {
 			await table.selectOne(select);
 			expect(Table.prototype.request).toHaveBeenCalledTimes(1);
 			expect(Table.prototype.request).toHaveBeenCalledWith(
-				"SELECT",
-				"",
-				`${config.table}.*, MAX(DISTINCT ${config.table}.field)`,
-				"FROM",
-				config.table,
-				"",
-				`WHERE (${config.table}.field = 15 AND ${config.table}.field != 15) LIMIT 0,1`
+				`SELECT ${config.table}.*, MAX(DISTINCT ${config.table}.field) FROM ${config.table} WHERE (${config.table}.field = 15 AND ${config.table}.field != 15) LIMIT 0,1`
 			);
 		});
 	});

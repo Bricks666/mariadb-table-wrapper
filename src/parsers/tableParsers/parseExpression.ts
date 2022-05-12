@@ -1,14 +1,14 @@
-import { isArray, toString } from "@/utils";
-import { Expression, Operators, SQL, ValidSQLType } from "@/types";
+import { isArray, isObject, toJSON, toString } from "@/utils";
+import { Expression, Operators, SQL, SubQuery, ValidSQLType } from "@/types";
 import { ParamsError } from "@/lib";
-import { parseSQLValues } from "../queryParsers";
+import { parseSubSelect } from "../queryParsers";
 
 /**
  * TODO: Упростить функцию
  */
 export const parseExpression = <T extends ValidSQLType>(
 	field: string,
-	{ operator, value, not }: Expression<T>
+	{ operator, value, not }: Expression
 ): SQL => {
 	const SQLOperator = operator.toUpperCase();
 	const conditionParts: SQL[] = [];
@@ -16,24 +16,30 @@ export const parseExpression = <T extends ValidSQLType>(
 		conditionParts.push("NOT");
 	}
 
-
 	/* Нужны наглядные приведения, потому что TS, он не считывает адекватно тип после abort, даже при гуарде */
 	abortInvalidParsing(operator, value);
 	conditionParts.push(field);
 	switch (operator) {
 		case "between": {
-			value = value as T[];
-			conditionParts.push(SQLOperator, toString(value, " AND "));
+			value = value as Array<T | SubQuery>;
+			const values = value.map((value) =>
+				isObject(value) ? parseSubSelect(value.table, value) : value
+			);
+			conditionParts.push(SQLOperator, toString(values, " AND "));
 			break;
 		}
 		case "in": {
-			value = value as T[];
-			conditionParts.push(SQLOperator, `(${parseSQLValues(value)})`);
+			value = value as Array<T | SubQuery>;
+			const values = value.map((value) =>
+				isObject(value) ? parseSubSelect(value.table, value) : toJSON(value)
+			);
+			conditionParts.push(SQLOperator, `(${toString(values)})`);
 			break;
 		}
 		case "regExp":
 		case "like": {
-			conditionParts.push(SQLOperator, parseSQLValues([value]));
+			value = value as string;
+			conditionParts.push(SQLOperator, toJSON(value));
 			break;
 		}
 		case "is null": {
@@ -41,11 +47,10 @@ export const parseExpression = <T extends ValidSQLType>(
 			break;
 		}
 		default: {
-			value = value as T;
-			const SQlValue =
-				typeof value === "string"
-					? parseSQLValues([value])
-					: (value as unknown as string);
+			value = value as string | SubQuery;
+			const SQlValue = isObject(value)
+				? parseSubSelect(value.table, value)
+				: toJSON(value);
 			conditionParts.push(SQLOperator, SQlValue);
 			break;
 		}
@@ -55,7 +60,7 @@ export const parseExpression = <T extends ValidSQLType>(
 
 interface Validating {
 	readonly validator: (
-		value: ValidSQLType | ValidSQLType[] | undefined
+		value: ValidSQLType | SubQuery | Array<ValidSQLType | SubQuery>
 	) => boolean;
 	readonly error: ParamsError | null;
 }
@@ -104,8 +109,8 @@ const validatingMap: Partial<Record<string, Validating>> = {
 
 const abortInvalidParsing = (
 	operator: Operators,
-	value: ValidSQLType | ValidSQLType[] | undefined
-) => {
+	value: ValidSQLType | SubQuery | Array<ValidSQLType | SubQuery>
+): boolean | never => {
 	let validating = validatingMap[operator];
 	if (!validating) {
 		validating = validatingMap["logic"] as Validating;

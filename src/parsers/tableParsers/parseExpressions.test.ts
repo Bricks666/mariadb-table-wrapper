@@ -1,7 +1,7 @@
 import { Expression } from "@/types";
 import { parseExpressions } from "./parseExpressions";
 
-const expression: Expression<number> = {
+const expression: Expression = {
 	operator: "!=",
 	value: 15,
 };

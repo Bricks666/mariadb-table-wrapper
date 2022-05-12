@@ -1,5 +1,5 @@
-import { AnyObject } from ".";
-import { ValidSQLType } from "./Common";
+import { ValidSQLType, AnyObject } from "./Common";
+import { Expressions } from "./Expressions";
 
 export interface TableConfig<TF extends AnyObject> {
 	readonly table: string;
@@ -19,7 +19,7 @@ export interface FieldConfig<T extends ValidSQLType> {
 	readonly isUnique?: boolean;
 	readonly isUnsigned?: boolean;
 	readonly isNotNull?: boolean;
-	readonly check?: Expressions<T>;
+	readonly check?: Expressions;
 	readonly default?: T;
 
 	readonly stringLen?: number;
@@ -81,28 +81,4 @@ export type ChangeType =
 	| "NO ACTION"
 	| "SET DEFAULT";
 
-export type Expressions<T extends ValidSQLType> =
-	| Expression<T>
-	| Expression<T>[]
-	| Expression<T>[][];
-
-export interface Expression<T extends ValidSQLType> {
-	readonly operator: Operators;
-	readonly value: T | T[];
-	readonly not?: boolean;
-}
-
 export type ArithmeticOperators = "+" | "-" | "*" | "/";
-
-export type Operators =
-	| "="
-	| "<"
-	| "<="
-	| ">"
-	| ">="
-	| "!="
-	| "between"
-	| "in"
-	| "like"
-	| "regExp"
-	| "is null";
